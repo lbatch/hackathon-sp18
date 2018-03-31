@@ -11,7 +11,10 @@ const tools = require('./tools.js');
 
 const app = express();
 
+var eventArray = new Array();
+
 app.use(express.static(path.join(__dirname, 'client/build')));
+
 
 app.get('/auth', (req,res) => {
     fs.readFile('client_secret.json', (err, content) => {
@@ -24,15 +27,22 @@ app.get('/auth', (req,res) => {
     var day = today.getDate();
     var d = new Date(year + 1, month, day)
     var endDate = d.toISOString();
-    var eventList = authorize(JSON.parse(content), getEvents, startDate, endDate);
-    console.log(eventList);
-    //var taskBlocks = tools.generateWorkBlocks(tasks, eventList);
-    //insertTasks(taskBlocks);
-    
+    authorize(JSON.parse(content), getEvents, taskAssignment);
+  
     res.set('Content-Type', 'text/plain');
     res.send(`Success`);
   });
 });
+
+function taskAssignment()
+{
+  var task1 = new Task("do it", 2, '2018-03-31');
+  var task2 = new Task("do this too", 1, '2018-04-01');
+  var task3 = new Task("and this", 3, '2018-05-03');
+  var tasks = [task1, task2, task3];
+  console.log(tasks);
+  generateWorkBlocks(tasks, eventArray);
+}
 
 
     /**
@@ -41,7 +51,7 @@ app.get('/auth', (req,res) => {
      * @param {Object} credentials The authorization client credentials.
      * @param {function} callback The callback to call with the authorized client.
      */
-    function authorize(credentials, callback) {
+    function authorize(credentials, callback, callback2) {
       const {client_secret, client_id, redirect_uris} = credentials.installed;
       const oAuth2Client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
 
@@ -49,7 +59,7 @@ app.get('/auth', (req,res) => {
       fs.readFile(TOKEN_PATH, (err, token) => {
         if (err) return getAccessToken(oAuth2Client, callback);
         oAuth2Client.setCredentials(JSON.parse(token));
-        return callback(oAuth2Client);
+        callback(oAuth2Client, callback2);
       });
     }
 
@@ -59,7 +69,7 @@ app.get('/auth', (req,res) => {
      * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
      * @param {getEventsCallback} callback The callback for the authorized client.
      */
-    function getAccessToken(oAuth2Client, callback) {
+    function getAccessToken(oAuth2Client, callback, callback2) {
       const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: SCOPES,
@@ -79,7 +89,7 @@ app.get('/auth', (req,res) => {
             if (err) console.error(err);
             console.log('Token stored to', TOKEN_PATH);
           });
-          callback(oAuth2Client);
+          callback(oAuth2Client, callback2);
         });
       });
     }
@@ -88,7 +98,7 @@ app.get('/auth', (req,res) => {
      * Lists the next 10 events on the user's primary calendar.
      * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
      */
-    function getEvents(auth) {
+    function getEvents(auth, callback) {
       const calendar = google.calendar({version: 'v3', auth});
       calendar.events.list({
         calendarId: 'primary',
@@ -100,19 +110,14 @@ app.get('/auth', (req,res) => {
         if (err) return console.log('The API returned an error: ' + err);
         const events = data.items;
         if (events.length) {
-          var eventArray = new Array();
-  
           for(let event of events)
           {
             var start = event.start.dateTime || event.start.date;
             var end = event.end.dateTime || event.end.date;
-            console.log(typeof start);
-            console.log(typeof end);
             var newEvent =  new Block(start, end);
-            console.log(newEvent);
             eventArray.push(newEvent); // add each event to array as Block object
           }
-          return eventArray;
+          callback();
         } else {
           console.log('No upcoming events found.');
         }
@@ -242,7 +247,6 @@ function blockSelection(tasks, freeBlocks)
                 freeBlocks.splice(0,1);
         }
     }
-    console.log(workBlocks);
     return workBlocks;
 }
 
@@ -250,9 +254,29 @@ function generateWorkBlocks(tasks, appointments)
 {
     var freeBlocks = detFreeTime(appointments);
     var workBlocks = blockSelection(tasks, freeBlocks);
-    return workBlocks;
+    insertEvents(workBlocks);
 }
 
+function insertEvents(taskBlocks)
+{
+  for(let block of taskBlocks)
+  {
+    var event = {
+      'summary': block.task,
+      'start': {
+        'dateTime': block.startDate
+      },
+      'end': {
+        'datetime': block.endDate
+      },
+      'reminders': {
+        'useDefault': true
+      }
+    }
+    console.log(event);
+  }
+  
+}
 
 const port = process.env.PORT || 5000;
 app.listen(port);
