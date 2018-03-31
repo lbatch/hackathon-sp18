@@ -7,7 +7,7 @@ const google = require('googleapis');
 const OAuth2Client = google.auth.OAuth2;
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const TOKEN_PATH = 'credentials.json';
-const tools = require('./tools.js');
+
 
 const app = express();
 
@@ -20,13 +20,6 @@ app.get('/auth', (req,res) => {
     fs.readFile('client_secret.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Drive API
-    var today = new Date();
-    var startDate = today.toISOString();
-    var year = today.getFullYear();
-    var month = today.getMonth();
-    var day = today.getDate();
-    var d = new Date(year + 1, month, day)
-    var endDate = d.toISOString();
     authorize(JSON.parse(content), getEvents, taskAssignment);
     res.set('Content-Type', 'text/plain');
     res.send(`Success`);
@@ -41,6 +34,10 @@ function taskAssignment()
   var tasks = [task1, task2, task3];
   generateWorkBlocks(tasks, eventArray);
 }
+
+app.get('/api/main', (req, res) => {
+    console.log("Success");
+});
 
 /**
   * Create an OAuth2 client with the given credentials, and then execute the
@@ -172,10 +169,6 @@ app.get('/api/main', (req, res) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname+'/client/build/index.html'));
 });
-
-
-
-
 
 
 
@@ -313,3 +306,4 @@ const port = process.env.PORT || 5000;
 app.listen(port);
 
 console.log(`Listening on ${port}`);
+
