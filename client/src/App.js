@@ -12,7 +12,8 @@ class App extends Component {
       displayMonth: {
         month: currentMonth,
         year: currentYear
-      }
+      },
+      numOfEvents: 3
     };
   }
 
@@ -52,10 +53,54 @@ class App extends Component {
     });
   }
 
+  addEventHandler = (event) => {
+    let newNumOfEvents = this.state.numOfEvents + 1;
+    this.setState({
+      ...this.state,
+      numOfEvents: newNumOfEvents
+    });
+    event.preventDefault();
+  }
+
+  removeEventHandler = (event) => {
+    let newNumOfEvents = this.state.numOfEvents === 0 ? 0 : this.state.numOfEvents - 1;
+    this.setState({
+      ...this.state,
+      numOfEvents: newNumOfEvents
+    });
+    event.preventDefault();
+  }
+
+
+
+  submitFormHandler = (event) => {
+    event.preventDefault();
+  }
+
   render() {
+    let arrayOfKeys = new Array(this.state.numOfEvents);
+    for(let i = 0; i < this.state.numOfEvents; ++i) {
+      arrayOfKeys[i] = i + 3;
+    }
+    let formInputs = arrayOfKeys.map( key => {
+      return (
+        <div>
+          Title: <input key={key} type="text" name="events[][title]"/>
+          Duration: <input key={key + 1} type="number" name="events[][duration]"/>
+          Deadine: <input key={key + 2} type="date" name="events[][deadline]"/>
+        </div>
+      )
+    });
+
     return (
       <div>
         <Banner />
+        <form name="eventForm" onSubmit={this.submitFormHandler}>
+          {formInputs}
+          <input type="submit"/>
+          <button onClick={this.addEventHandler}>Add Event</button>
+          <button onClick={this.removeEventHandler}>Remove Event</button>
+        </form>
         <Calendar display={this.state.displayMonth}/>
         <div>
           <button className="changeDisplay" onClick={this.lastMonthHandler}>Prev</button>
@@ -65,5 +110,6 @@ class App extends Component {
     );
   }
 }
+
 
 export default App;
