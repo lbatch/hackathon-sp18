@@ -85,9 +85,12 @@ class App extends Component {
     let formInputs = arrayOfKeys.map( key => {
       return (
         <div>
-          Title: <input key={key} type="text" name="events[][title]"/>
-          Duration: <input key={key + 1} type="number" name="events[][duration]"/>
-          Deadine: <input key={key + 2} type="date" name="events[][deadline]"/>
+          <fieldset>
+            <legend>Event Details</legend>
+            <p>Title: <input key={key} type="text" name="events[][title]"/></p>
+            <p>Duration (Hours): <input key={key + 1} type="number" name="events[][duration]"/></p>
+            <p>Deadline: <input key={key + 2} type="date" name="events[][deadline]"/></p>
+          </fieldset>
         </div>
       )
     });
