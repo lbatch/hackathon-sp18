@@ -1,12 +1,71 @@
 const express = require('express');
 const path = require('path');
+const tools = require('./tools.js');
 
 const app = express();
 
 app.use(express.static(path.join(__dirname, 'client/build')));
 
+// --- insertTasks ---
+// Will need a function to add events to the authorized calendar
+function insertTasks(taskList) {
+  //functionality goes here
+}
+
+// --- getEvents ---
+// Gets a list of events from the user's calendar and returns an array of Block
+// objects (representing non-free time) for use with the methods in tools.js;
+// note: the returned array will be empty if no upcoming events exist
+function getEvents(startDate, endDate) {
+    gapi.client.calendar.events.list({ // API call
+      'calendarId': 'primary',
+      'timeMin': startDate,
+      'timeMax': endDate,
+      'singleEvents': true,
+      'orderBy': 'startTime'
+    }).then(function(response) { // callback
+      var events = response.result.items;
+      var eventArray = new Array();
+
+      if (events.length > 0) { // upcoming events found
+        for (var i = 0; i < events.length; i++) {
+          var event = events[i];
+
+          var whenStart = event.start.dateTime;
+          if (!whenStart) {
+            whenStart = event.start.date;
+          }
+          var whenEnd = event.end.dateTime;
+          if (!whenEnd) {
+            whenEnd = event.end.date;
+          }
+
+          var newEvent = new tools.Block(whenStart, whenEnd);
+          eventArray.push(newEvent); // add each event to array as Block object
+        }
+      }
+      return eventArray; // return array of Block objects (occupied time slots)
+    });
+}
+
 app.get('/api/main', (req, res) => {
     console.log("Success");
+});
+
+app.post('/api/tasks', (req,res) => {
+    const tasks = req.body.tasks;
+    var today = (new Date()).toISOString();
+    var d = new Date();
+    var year = d.getFullYear();
+    var month = d.getFullMonth();
+    var day = d.getDate();
+    var end = (new Date(year + 1, month, day)).toISOString();
+    var events = getEvents(today, end);
+    var taskBlocks = tools.generateWorkBlocks(tasks, events);
+    insertTasks(taskBlocks);
+
+    res.set('Content-Type', 'text/plain');
+    res.send(`Success`);
 });
 
 app.get('/auth', (req, res) => {
@@ -110,41 +169,3 @@ const port = process.env.PORT || 5000;
 app.listen(port);
 
 console.log(`Listening on ${port}`);
-
-const tools = require('./tools.js');
-
-// --- getEvents ---
-// Gets a list of events from the user's calendar and returns an array of Block
-// objects (representing non-free time) for use with the methods in tools.js;
-// note: the returned array will be empty if no upcoming events exist
-function getEvents(startDate, endDate) {
-    gapi.client.calendar.events.list({ // API call
-      'calendarId': 'primary',
-      'timeMin': startDate,
-      'timeMax': endDate,
-      'singleEvents': true,
-      'orderBy': 'startTime'
-    }).then(function(response) { // callback
-      var events = response.result.items;
-      var eventArray = new Array();
-
-      if (events.length > 0) { // upcoming events found
-        for (i = 0; i < events.length; i++) {
-          var event = events[i];
-
-          var whenStart = event.start.dateTime;
-          if (!whenStart) {
-            whenStart = event.start.date;
-          }
-          var whenEnd = event.end.dateTime;
-          if (!whenEnd) {
-            whenEnd = event.end.date;
-          }
-
-          var newEvent = new tools.Block(whenStart, whenEnd);
-          eventArray.push(newEvent); // add each event to array as Block object
-        }
-      }
-      return eventArray; // return array of Block objects (occupied time slots)
-    });
-}
