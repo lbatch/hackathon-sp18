@@ -111,7 +111,7 @@ app.listen(port);
 
 console.log(`Listening on ${port}`);
 
-const tools = require('tools.js');
+const tools = require('./tools.js');
 
 // --- getEvents ---
 // Gets a list of events from the user's calendar and returns an array of Block
@@ -128,7 +128,7 @@ function getEvents(startDate, endDate) {
       var events = response.result.items;
       var eventArray = new Array();
 
-      if (events.length > 0) { // upcoming events found  	
+      if (events.length > 0) { // upcoming events found
         for (i = 0; i < events.length; i++) {
           var event = events[i];
 
