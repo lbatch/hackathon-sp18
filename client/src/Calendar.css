@@ -1,0 +1,26 @@
+.day {
+  border: 1px solid #000;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 75px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 75px;
+  background: -webkit-radial-gradient(center, ellipse cover, #ffb76b 0%,#ff7c00 100%,#ff7f04 100%);
+}
+
+.day:hover {
+  background: -webkit-radial-gradient(center, ellipse cover, #fcecfc 0%,#fd89d7 100%,#fba6e1 100%,#ff7cd8 100%);
+}
+
+.boardRow {
+  clear: both;
+  display: table;
+}
+
+.calendar {
+}
