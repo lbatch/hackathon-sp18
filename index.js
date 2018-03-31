@@ -12,9 +12,9 @@ const tools = require('./tools.js');
 const app = express();
 
 var eventArray = new Array();
+var workArray = new Array();
 
 app.use(express.static(path.join(__dirname, 'client/build')));
-
 
 app.get('/auth', (req,res) => {
     fs.readFile('client_secret.json', (err, content) => {
@@ -28,101 +28,133 @@ app.get('/auth', (req,res) => {
     var d = new Date(year + 1, month, day)
     var endDate = d.toISOString();
     authorize(JSON.parse(content), getEvents, taskAssignment);
-  
     res.set('Content-Type', 'text/plain');
     res.send(`Success`);
   });
 });
 
-function taskAssignment()
-{
-  var task1 = new Task("do it", 2, '2018-03-31');
-  var task2 = new Task("do this too", 1, '2018-04-01');
-  var task3 = new Task("and this", 3, '2018-05-03');
-  var tasks = [task1, task2, task3];
-  console.log(tasks);
-  generateWorkBlocks(tasks, eventArray);
+/**
+  * Create an OAuth2 client with the given credentials, and then execute the
+  * given callback function.
+  * @param {Object} credentials The authorization client credentials.
+  * @param {function} callback The callback to call with the authorized client.
+*/
+function authorize(credentials, callback, callback2) {
+  const {client_secret, client_id, redirect_uris} = credentials.installed;
+  const oAuth2Client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
+    // Check if we have previously stored a token.
+  fs.readFile(TOKEN_PATH, (err, token) => {
+    if (err) return getAccessToken(oAuth2Client, callback);
+    oAuth2Client.setCredentials(JSON.parse(token));
+    callback(oAuth2Client, callback2);
+  });
 }
 
-
-    /**
-     * Create an OAuth2 client with the given credentials, and then execute the
-     * given callback function.
-     * @param {Object} credentials The authorization client credentials.
-     * @param {function} callback The callback to call with the authorized client.
-     */
-    function authorize(credentials, callback, callback2) {
-      const {client_secret, client_id, redirect_uris} = credentials.installed;
-      const oAuth2Client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
-
-      // Check if we have previously stored a token.
-      fs.readFile(TOKEN_PATH, (err, token) => {
-        if (err) return getAccessToken(oAuth2Client, callback);
-        oAuth2Client.setCredentials(JSON.parse(token));
-        callback(oAuth2Client, callback2);
+/**
+ * Get and store new token after prompting for user authorization, and then
+ * execute the given callback with the authorized OAuth2 client.
+ * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
+ * @param {getEventsCallback} callback The callback for the authorized client.
+ */
+function getAccessToken(oAuth2Client, callback, callback2) {
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES,
+  });
+  console.log('Authorize this app by visiting this url:', authUrl);
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  rl.question('Enter the code from that page here: ', (code) => {
+    rl.close();
+    oAuth2Client.getToken(code, (err, token) => {
+      if (err) return callback(err);
+      oAuth2Client.setCredentials(token);
+      // Store the token to disk for later program executions
+      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+        if (err) console.error(err);
+        console.log('Token stored to', TOKEN_PATH);
       });
+      callback(oAuth2Client, callback2);
+    });
+  });
+}
+
+/**
+ * Gets the next 500 events on the user's primary calendar.
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+function getEvents(auth, callback) {
+  const calendar = google.calendar({version: 'v3', auth});
+  calendar.events.list({
+    calendarId: 'primary',
+    timeMin: (new Date()).toISOString(),
+    maxResults: 500,
+    singleEvents: true,
+    orderBy: 'startTime',
+  }, (err, {data}) => {
+    if (err) return console.log('The API returned an error: ' + err);
+    const events = data.items;
+    if (events.length) {
+      for(let event of events)
+      {
+        var start = event.start.dateTime || event.start.date;
+        var end = event.end.dateTime || event.end.date;
+        var newEvent =  new Block(start, end);
+        eventArray.push(newEvent); // add each event to array as Block object
+      }
+      callback();
+    } else {
+      console.log('No upcoming events found.');
     }
+  });
+}
 
-    /**
-     * Get and store new token after prompting for user authorization, and then
-     * execute the given callback with the authorized OAuth2 client.
-     * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
-     * @param {getEventsCallback} callback The callback for the authorized client.
-     */
-    function getAccessToken(oAuth2Client, callback, callback2) {
-      const authUrl = oAuth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: SCOPES,
-      });
-      console.log('Authorize this app by visiting this url:', authUrl);
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-      rl.question('Enter the code from that page here: ', (code) => {
-        rl.close();
-        oAuth2Client.getToken(code, (err, token) => {
-          if (err) return callback(err);
-          oAuth2Client.setCredentials(token);
-          // Store the token to disk for later program executions
-          fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-            if (err) console.error(err);
-            console.log('Token stored to', TOKEN_PATH);
-          });
-          callback(oAuth2Client, callback2);
-        });
-      });
+function insertEvents(auth, callback)
+{
+  const calendar = google.calendar({version: 'v3', auth});
+  for(let block of workArray)
+  {
+    console.log(block);
+  }
+  for(let block of workArray)
+  {
+    console.log(block.startDate.toISOString());
+    console.log(block.endDate.toISOString());
+    
+    var event = {
+      'summary': block.task,
+      'start': {
+        'dateTime': block.startDate
+      },
+      'end': {
+        'dateTime': block.endDate
+      },
+      'reminders': {
+        'useDefault': true
+      }
     }
+    
+    calendar.events.insert({
+      auth: auth,
+      calendarId: 'primary',
+      resource: event,
+    }, function(err, event){
+      if (err) {
+        console.log('There was an error contacting the Calendar service: ' + err);
+        return;
+      }
+      console.log('Event created!');
+    });
+  }
+  callback();
+}
 
-    /**
-     * Lists the next 10 events on the user's primary calendar.
-     * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
-     */
-    function getEvents(auth, callback) {
-      const calendar = google.calendar({version: 'v3', auth});
-      calendar.events.list({
-        calendarId: 'primary',
-        timeMin: (new Date()).toISOString(),
-        maxResults: 500,
-        singleEvents: true,
-        orderBy: 'startTime',
-      }, (err, {data}) => {
-        if (err) return console.log('The API returned an error: ' + err);
-        const events = data.items;
-        if (events.length) {
-          for(let event of events)
-          {
-            var start = event.start.dateTime || event.start.date;
-            var end = event.end.dateTime || event.end.date;
-            var newEvent =  new Block(start, end);
-            eventArray.push(newEvent); // add each event to array as Block object
-          }
-          callback();
-        } else {
-          console.log('No upcoming events found.');
-        }
-      });
-    }
+function success()
+{
+  console.log("Creating events");
+}
 
 app.get('/api/main', (req, res) => {
     console.log("Success");
@@ -132,6 +164,14 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname+'/client/build/index.html'));
 });
 
+
+
+
+
+
+
+
+// ****** TOOLS ******* //
 Date.prototype.addMinutes = function(m) 
 {    
    this.setTime(this.getTime() + (m*60*1000)); 
@@ -185,7 +225,6 @@ function Task(title, duration, deadline)
 /* Function to take list of appointments from calendar and determine blocks of free time */
 function detFreeTime(appointments)
 {
-    
     var freeBlocks = new Array();
     
     var curStartDate = new Date(); // Start at least 30 minutes from now, since we're in planning mode
@@ -253,29 +292,12 @@ function blockSelection(tasks, freeBlocks)
 function generateWorkBlocks(tasks, appointments)
 {
     var freeBlocks = detFreeTime(appointments);
-    var workBlocks = blockSelection(tasks, freeBlocks);
-    insertEvents(workBlocks);
-}
-
-function insertEvents(taskBlocks)
-{
-  for(let block of taskBlocks)
-  {
-    var event = {
-      'summary': block.task,
-      'start': {
-        'dateTime': block.startDate
-      },
-      'end': {
-        'datetime': block.endDate
-      },
-      'reminders': {
-        'useDefault': true
-      }
-    }
-    console.log(event);
-  }
-  
+    workArray = blockSelection(tasks, freeBlocks);
+    fs.readFile('client_secret.json', (err, content) => {
+    if (err) return console.log('Error loading client secret file:', err);
+    // Authorize a client with credentials, then call the Google Drive API
+    authorize(JSON.parse(content), insertEvents, success);
+  });
 }
 
 const port = process.env.PORT || 5000;
