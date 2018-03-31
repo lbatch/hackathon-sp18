@@ -33,6 +33,15 @@ app.get('/auth', (req,res) => {
   });
 });
 
+function taskAssignment()
+{
+  var task1 = new Task("do it", 2, '2018-03-31');
+  var task2 = new Task("do this too", 1, '2018-04-01');
+  var task3 = new Task("and this", 3, '2018-05-03');
+  var tasks = [task1, task2, task3];
+  generateWorkBlocks(tasks, eventArray);
+}
+
 /**
   * Create an OAuth2 client with the given credentials, and then execute the
   * given callback function.
