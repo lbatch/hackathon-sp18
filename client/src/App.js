@@ -83,6 +83,15 @@ class App extends Component {
       events[i].deadline = results["deadline" + i].value;
     }
     console.log(events);
+    this.setState({
+      ...this.state,
+      tasks: [ {
+              	startDate: '2018-04-01T12:44:39.000Z',
+              	endDate: '2018-04-01T15:44:39.000Z',
+              	task: 'do shit'
+              }
+            ]
+    });
     event.preventDefault();
   }
 
@@ -113,7 +122,7 @@ class App extends Component {
           <button onClick={this.addEventHandler}>Add Event</button>
           <button onClick={this.removeEventHandler}>Remove Event</button>
         </form>
-        <Calendar display={this.state.displayMonth}/>
+        <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
         <div>
           <button className="changeDisplay" onClick={this.lastMonthHandler}>Prev</button>
           <button className="changeDisplay" onClick={this.nextMonthHandler}>Next</button>
