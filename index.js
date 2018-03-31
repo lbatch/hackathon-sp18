@@ -8,15 +8,18 @@ const OAuth2Client = google.auth.OAuth2;
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const TOKEN_PATH = 'credentials.json';
 
-
 const app = express();
 
 var eventArray = new Array();
 var workArray = new Array();
+var taskArray = new Array();
+var frontEndToken;
 
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-app.get('/auth', (req,res) => {
+app.post('/auth', (req,res) => {
+    frontEndToken = req.body.token;
+    taskArray = req.body.tasks;
     fs.readFile('client_secret.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Drive API
@@ -26,13 +29,20 @@ app.get('/auth', (req,res) => {
   });
 });
 
+app.get('/api/work', (req,res) => {
+  if(!workArray.length)
+  {
+    res.status(500).send("No events were added");
+  }
+  else
+  {
+    res.status(200).send(eventArray);
+  }
+});
+
 function taskAssignment()
 {
-  var task1 = new Task("do it", 2, '2018-03-31');
-  var task2 = new Task("do this too", 1, '2018-04-01');
-  var task3 = new Task("and this", 3, '2018-05-03');
-  var tasks = [task1, task2, task3];
-  generateWorkBlocks(tasks, eventArray);
+  generateWorkBlocks(taskArray, eventArray);
 }
 
 app.get('/api/main', (req, res) => {
@@ -48,6 +58,7 @@ app.get('/api/main', (req, res) => {
 function authorize(credentials, callback, callback2) {
   const {client_secret, client_id, redirect_uris} = credentials.installed;
   const oAuth2Client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
+  oAuth2Client.setCredentials(JSON.parse(frontEndToken));
     // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
     if (err) return getAccessToken(oAuth2Client, callback);
