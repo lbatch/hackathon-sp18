@@ -1,171 +1,309 @@
 const express = require('express');
 const path = require('path');
-const tools = require('./tools.js');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const readline = require('readline');
+const google = require('googleapis');
+const OAuth2Client = google.auth.OAuth2;
+const SCOPES = ['https://www.googleapis.com/auth/calendar'];
+const TOKEN_PATH = 'credentials.json';
+
 
 const app = express();
 
+var eventArray = new Array();
+var workArray = new Array();
+
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-// --- insertTasks ---
-// Will need a function to add events to the authorized calendar
-function insertTasks(taskList) {
-  //functionality goes here
-}
+app.get('/auth', (req,res) => {
+    fs.readFile('client_secret.json', (err, content) => {
+    if (err) return console.log('Error loading client secret file:', err);
+    // Authorize a client with credentials, then call the Google Drive API
+    authorize(JSON.parse(content), getEvents, taskAssignment);
+    res.set('Content-Type', 'text/plain');
+    res.send(`Success`);
+  });
+});
 
-// --- getEvents ---
-// Gets a list of events from the user's calendar and returns an array of Block
-// objects (representing non-free time) for use with the methods in tools.js;
-// note: the returned array will be empty if no upcoming events exist
-function getEvents(startDate, endDate) {
-    gapi.client.calendar.events.list({ // API call
-      'calendarId': 'primary',
-      'timeMin': startDate,
-      'timeMax': endDate,
-      'singleEvents': true,
-      'orderBy': 'startTime'
-    }).then(function(response) { // callback
-      var events = response.result.items;
-      var eventArray = new Array();
-
-      if (events.length > 0) { // upcoming events found
-        for (var i = 0; i < events.length; i++) {
-          var event = events[i];
-
-          var whenStart = event.start.dateTime;
-          if (!whenStart) {
-            whenStart = event.start.date;
-          }
-          var whenEnd = event.end.dateTime;
-          if (!whenEnd) {
-            whenEnd = event.end.date;
-          }
-
-          var newEvent = new tools.Block(whenStart, whenEnd);
-          eventArray.push(newEvent); // add each event to array as Block object
-        }
-      }
-      return eventArray; // return array of Block objects (occupied time slots)
-    });
+function taskAssignment()
+{
+  var task1 = new Task("do it", 2, '2018-03-31');
+  var task2 = new Task("do this too", 1, '2018-04-01');
+  var task3 = new Task("and this", 3, '2018-05-03');
+  var tasks = [task1, task2, task3];
+  generateWorkBlocks(tasks, eventArray);
 }
 
 app.get('/api/main', (req, res) => {
     console.log("Success");
 });
 
-app.post('/api/tasks', (req,res) => {
-    const tasks = req.body.tasks;
-    var today = (new Date()).toISOString();
-    var d = new Date();
-    var year = d.getFullYear();
-    var month = d.getFullMonth();
-    var day = d.getDate();
-    var end = (new Date(year + 1, month, day)).toISOString();
-    var events = getEvents(today, end);
-    var taskBlocks = tools.generateWorkBlocks(tasks, events);
-    insertTasks(taskBlocks);
+/**
+  * Create an OAuth2 client with the given credentials, and then execute the
+  * given callback function.
+  * @param {Object} credentials The authorization client credentials.
+  * @param {function} callback The callback to call with the authorized client.
+*/
+function authorize(credentials, callback, callback2) {
+  const {client_secret, client_id, redirect_uris} = credentials.installed;
+  const oAuth2Client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
+    // Check if we have previously stored a token.
+  fs.readFile(TOKEN_PATH, (err, token) => {
+    if (err) return getAccessToken(oAuth2Client, callback);
+    oAuth2Client.setCredentials(JSON.parse(token));
+    callback(oAuth2Client, callback2);
+  });
+}
 
-    res.set('Content-Type', 'text/plain');
-    res.send(`Success`);
-});
-
-app.get('/auth', (req, res) => {
-    const fs = require('fs');
-    const mkdirp = require('mkdirp');
-    const readline = require('readline');
-    const google = require('googleapis');
-    const OAuth2Client = google.auth.OAuth2;
-    const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
-    const TOKEN_PATH = 'credentials.json';
-
-    // Load client secrets from a local file.
-    fs.readFile('client_secret.json', (err, content) => {
-      if (err) return console.log('Error loading client secret file:', err);
-      // Authorize a client with credentials, then call the Google Drive API.
-      authorize(JSON.parse(content), listEvents);
+/**
+ * Get and store new token after prompting for user authorization, and then
+ * execute the given callback with the authorized OAuth2 client.
+ * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
+ * @param {getEventsCallback} callback The callback for the authorized client.
+ */
+function getAccessToken(oAuth2Client, callback, callback2) {
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES,
+  });
+  console.log('Authorize this app by visiting this url:', authUrl);
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  rl.question('Enter the code from that page here: ', (code) => {
+    rl.close();
+    oAuth2Client.getToken(code, (err, token) => {
+      if (err) return callback(err);
+      oAuth2Client.setCredentials(token);
+      // Store the token to disk for later program executions
+      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+        if (err) console.error(err);
+        console.log('Token stored to', TOKEN_PATH);
+      });
+      callback(oAuth2Client, callback2);
     });
+  });
+}
 
-    /**
-     * Create an OAuth2 client with the given credentials, and then execute the
-     * given callback function.
-     * @param {Object} credentials The authorization client credentials.
-     * @param {function} callback The callback to call with the authorized client.
-     */
-    function authorize(credentials, callback) {
-      const {client_secret, client_id, redirect_uris} = credentials.installed;
-      const oAuth2Client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
-
-      // Check if we have previously stored a token.
-      fs.readFile(TOKEN_PATH, (err, token) => {
-        if (err) return getAccessToken(oAuth2Client, callback);
-        oAuth2Client.setCredentials(JSON.parse(token));
-        callback(oAuth2Client);
-      });
+/**
+ * Gets the next 500 events on the user's primary calendar.
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+function getEvents(auth, callback) {
+  const calendar = google.calendar({version: 'v3', auth});
+  calendar.events.list({
+    calendarId: 'primary',
+    timeMin: (new Date()).toISOString(),
+    maxResults: 500,
+    singleEvents: true,
+    orderBy: 'startTime',
+  }, (err, {data}) => {
+    if (err) return console.log('The API returned an error: ' + err);
+    const events = data.items;
+    if (events.length) {
+      for(let event of events)
+      {
+        var start = event.start.dateTime || event.start.date;
+        var end = event.end.dateTime || event.end.date;
+        var newEvent =  new Block(start, end);
+        eventArray.push(newEvent); // add each event to array as Block object
+      }
+      callback();
+    } else {
+      console.log('No upcoming events found.');
     }
+  });
+}
 
-    /**
-     * Get and store new token after prompting for user authorization, and then
-     * execute the given callback with the authorized OAuth2 client.
-     * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
-     * @param {getEventsCallback} callback The callback for the authorized client.
-     */
-    function getAccessToken(oAuth2Client, callback) {
-      const authUrl = oAuth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: SCOPES,
-      });
-      console.log('Authorize this app by visiting this url:', authUrl);
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-      rl.question('Enter the code from that page here: ', (code) => {
-        rl.close();
-        oAuth2Client.getToken(code, (err, token) => {
-          if (err) return callback(err);
-          oAuth2Client.setCredentials(token);
-          // Store the token to disk for later program executions
-          fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-            if (err) console.error(err);
-            console.log('Token stored to', TOKEN_PATH);
-          });
-          callback(oAuth2Client);
-        });
-      });
+function insertEvents(auth, callback)
+{
+  const calendar = google.calendar({version: 'v3', auth});
+  for(let block of workArray)
+  {
+    console.log(block);
+  }
+  for(let block of workArray)
+  {
+    console.log(block.startDate.toISOString());
+    console.log(block.endDate.toISOString());
+    
+    var event = {
+      'summary': block.task,
+      'start': {
+        'dateTime': block.startDate
+      },
+      'end': {
+        'dateTime': block.endDate
+      },
+      'reminders': {
+        'useDefault': true
+      }
     }
+    
+    calendar.events.insert({
+      auth: auth,
+      calendarId: 'primary',
+      resource: event,
+    }, function(err, event){
+      if (err) {
+        console.log('There was an error contacting the Calendar service: ' + err);
+        return;
+      }
+      console.log('Event created!');
+    });
+  }
+  callback();
+}
 
-    /**
-     * Lists the next 10 events on the user's primary calendar.
-     * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
-     */
-    function listEvents(auth) {
-      const calendar = google.calendar({version: 'v3', auth});
-      calendar.events.list({
-        calendarId: 'primary',
-        timeMin: (new Date()).toISOString(),
-        maxResults: 10,
-        singleEvents: true,
-        orderBy: 'startTime',
-      }, (err, {data}) => {
-        if (err) return console.log('The API returned an error: ' + err);
-        const events = data.items;
-        if (events.length) {
-          console.log('Upcoming 10 events:');
-          events.map((event, i) => {
-            const start = event.start.dateTime || event.start.date;
-            console.log(`${start} - ${event.summary}`);
-          });
-        } else {
-          console.log('No upcoming events found.');
-        }
-      });
-    }
+function success()
+{
+  console.log("Creating events");
+}
+
+app.get('/api/main', (req, res) => {
+    console.log("Success");
 });
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname+'/client/build/index.html'));
 });
 
+
+
+
+// ****** TOOLS ******* //
+Date.prototype.addMinutes = function(m) 
+{    
+   this.setTime(this.getTime() + (m*60*1000)); 
+   return this;   
+}
+
+/* Convert API-formatted date to JS-compatible format */
+/* This and the below ended up being simpler than expected so may not be necessary */
+function date_APItoJS(apiDate)
+{
+    var date = new Date(apiDate);
+    return date;
+}
+
+/* Convert JS-formatted date to API-compatible format */
+function date_JStoAPI(jsDate)
+{
+    return jsDate.toISOString();
+}
+
+/* Block object for blocks of free time */
+function Block(start, end) 
+{
+    this.startDate = new Date(start);
+    this.endDate = new Date(end);
+}
+
+Block.prototype.duration = function() 
+{
+    var dur = this.endDate - this.startDate; 
+    return dur / 1000 / 60 / 60;
+}
+
+/* WorkBlock item for task-completion appointments to add to calendar */
+function WorkBlock(task, start, end) 
+{
+    this.startDate = start;
+    this.endDate = end;
+    this.task = task;
+}
+
+/* Task object for list of tasks */
+function Task(title, duration, deadline) 
+{
+    this.title = title;
+    this.duration = duration;
+    this.deadline = new Date(deadline);
+    this.remDuration = duration;
+}
+
+/* Function to take list of appointments from calendar and determine blocks of free time */
+function detFreeTime(appointments)
+{
+    var freeBlocks = new Array();
+    
+    var curStartDate = new Date(); // Start at least 30 minutes from now, since we're in planning mode
+    curStartDate.addMinutes(30);
+    var curEndDate = new Date(appointments[0].startDate);
+
+    for (let curAppt of appointments)
+    {
+        curEndDate = new Date(curAppt.startDate); // For the first block, the currentAppt start date is at least 30 minutes from now, start the first block of
+                                        // free time 30 min from now and end it at the next appt
+        var minEndDate = new Date(curStartDate);
+        minEndDate.addMinutes(30);
+        if(curEndDate >= minEndDate) // Don't use a block of time less than 30 minutes long; keep iterating until you find space
+        {
+            var curBlock = new Block(curStartDate, curEndDate);
+            freeBlocks.push(curBlock);
+        }
+        
+        curStartDate = new Date(curAppt.endDate);
+    }
+    curEndDate = new Date(curStartDate);
+    curEndDate.addMinutes(360);
+    curBlock = new Block(curStartDate, curEndDate);
+    freeBlocks.push(curBlock);
+    return freeBlocks;
+}
+
+function blockSelection(tasks, freeBlocks)
+{
+    var workBlocks = new Array();
+    
+    tasks.sort(function(a,b){
+        return new Date(a.deadline) - new Date(b.deadline);
+    });
+    
+    freeBlocks.sort(function(a,b){
+        return new Date(a.startDate) - new Date(b.startDate);
+    });
+    
+
+    for (let curTask of tasks)
+    {
+        while(curTask.duration > 0)
+        {
+            var minDuration = curTask.duration;
+            var blockDuration = freeBlocks[0].duration();
+            if(blockDuration < minDuration)
+                minDuration = blockDuration;
+            var startDate = new Date(freeBlocks[0].startDate);
+            var endDate = new Date(startDate);
+            endDate.addMinutes(minDuration*60);
+            var curWork = new WorkBlock(curTask.title, startDate, endDate);
+            workBlocks.push(curWork);
+            curTask.duration = curTask.duration - minDuration;
+            var compareDate = new Date(endDate);
+            compareDate.addMinutes(30);
+            freeBlocks[0].startDate = new Date(endDate);
+            if (compareDate >= freeBlocks[0].endDate)
+                freeBlocks.splice(0,1);
+        }
+    }
+    return workBlocks;
+}
+
+function generateWorkBlocks(tasks, appointments)
+{
+    var freeBlocks = detFreeTime(appointments);
+    workArray = blockSelection(tasks, freeBlocks);
+    fs.readFile('client_secret.json', (err, content) => {
+    if (err) return console.log('Error loading client secret file:', err);
+    // Authorize a client with credentials, then call the Google Drive API
+    authorize(JSON.parse(content), insertEvents, success);
+  });
+}
+
 const port = process.env.PORT || 5000;
 app.listen(port);
 
 console.log(`Listening on ${port}`);
+
