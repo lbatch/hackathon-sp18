@@ -74,22 +74,31 @@ class App extends Component {
 
 
   submitFormHandler = (event) => {
+    let events = [];
+    let results = document.forms['eventForm'];
+    for(let i = 0; i < this.state.numOfEvents; ++i) {
+      events[i] = {};
+      events[i].name = results["name" + i].value;
+      events[i].duration = results["duration" + i].value;
+      events[i].deadline = results["deadline" + i].value;
+    }
+    console.log(events);
     event.preventDefault();
   }
 
   render() {
     let arrayOfKeys = new Array(this.state.numOfEvents);
     for(let i = 0; i < this.state.numOfEvents; ++i) {
-      arrayOfKeys[i] = i + 3;
+      arrayOfKeys[i] = i;
     }
     let formInputs = arrayOfKeys.map( key => {
       return (
         <div>
           <fieldset>
             <legend>Event Details</legend>
-            <p>Title: <input key={key} type="text" name="events[][title]"/></p>
-            <p>Duration (Hours): <input key={key + 1} type="number" name="events[][duration]"/></p>
-            <p>Deadline: <input key={key + 2} type="date" name="events[][deadline]"/></p>
+            <p>Title: <input type="text" name={"name" + key}/></p>
+            <p>Duration (Hours): <input type="number" name={"duration" + key}/></p>
+            <p>Deadline: <input type="date" name={"deadline" + key}/></p>
           </fieldset>
         </div>
       )
