@@ -28,3 +28,7 @@
   background-image: linear-gradient(to bottom, #b63cfc, #6a92ad);
   text-decoration: none;
 }
+
+fieldset {
+  border: 0;
+}

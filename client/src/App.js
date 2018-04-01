@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import Banner from './Banner';
 import Calendar from './Calendar';
 import './App.css'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'; // for Material-UI theme
+import TextField from 'material-ui/TextField';
+import Paper from 'material-ui/Paper';
+import Subheader from 'material-ui/Subheader';
 
 class App extends Component {
   constructor(props) {
@@ -71,8 +75,6 @@ class App extends Component {
     event.preventDefault();
   }
 
-
-
   submitFormHandler = (event) => {
     let events = [];
     let results = document.forms['eventForm'];
@@ -93,18 +95,23 @@ class App extends Component {
     }
     let formInputs = arrayOfKeys.map( key => {
       return (
+        <MuiThemeProvider>
+        <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'block'}} zDepth={1}>
         <div>
           <fieldset>
-            <legend>Event Details</legend>
-            <p>Title: <input type="text" name={"name" + key}/></p>
-            <p>Duration (Hours): <input type="number" name={"duration" + key}/></p>
-            <p>Deadline: <input type="date" name={"deadline" + key}/></p>
+            <Subheader>Event Details</Subheader>
+            <p>Title: <TextField hintText="Name of the task" type="text" name={"name" + key}/></p>
+            <p>Duration: <TextField hintText="Hours needed to complete" type="number" name={"duration" + key}/></p>
+            <p>Deadline: <TextField type="date" name={"deadline" + key}/></p>
           </fieldset>
         </div>
+        </Paper>
+        </MuiThemeProvider>
       )
     });
 
     return (
+      <MuiThemeProvider>
       <div>
         <Banner />
         <form name="eventForm" onSubmit={this.submitFormHandler}>
@@ -119,6 +126,7 @@ class App extends Component {
           <button className="changeDisplay" onClick={this.nextMonthHandler}>Next</button>
         </div>
       </div>
+      </MuiThemeProvider>
     );
   }
 }
