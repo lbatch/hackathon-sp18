@@ -39,7 +39,7 @@ export default class DialogIcon extends React.Component {
             ?
         </FontIcon>
         <Dialog
-          title="About this App"
+          title="About"
           actions={actions}
           modal={false}
           open={this.state.open}
