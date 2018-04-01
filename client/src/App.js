@@ -135,32 +135,36 @@ class App extends Component {
       }
       formInputs = arrayOfKeys.map( key => {
         return (
-          <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
-          <div>
+          <Paper
+            style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}}
+            zDepth={1}
+            key={'Event'+key}
+          >
             <fieldset>
               <Subheader>Event Details</Subheader>
-              <p>Title: <TextField hintText="name of the task" type="text" name={"name" + key}/></p>
-              <p>Duration: <TextField hintText="hours needed to complete" type="number" name={"duration" + key}/></p>
-              <p>Deadline: <TextField type="date" name={"deadline" + key}/></p>
+              <p/>Title: <TextField hintText="name of the task" type="text" name={"name" + key}/>
+              <p/>Duration: <TextField hintText="hours needed to complete" type="number" name={"duration" + key}/>
+              <p/>Deadline: <TextField type="date" name={"deadline" + key}/>
             </fieldset>
-          </div>
           </Paper>
         )
       });
       formInputs[formInputs.length] = (
-        <div>
-          <RaisedButton type="submit" label="Submit" style={{marginLeft: '1rem'}} primary={true}/>
-          <RaisedButton onClick={this.addEventHandler} label="Add Event" style={{marginLeft: '1rem'}}/>
-          <RaisedButton onClick={this.removeEventHandler} label="Remove Event" style={{marginLeft: '1rem'}}/>
+        <div key='EventButtons'>
+          <RaisedButton type="submit" label="Submit" style={{marginLeft: '1rem'}} primary={true} />
+          <RaisedButton onClick={this.addEventHandler} label="Add Event" style={{marginLeft: '1rem'}} />
+          <RaisedButton onClick={this.removeEventHandler} label="Remove Event" style={{marginLeft: '1rem'}} />
         </div>
       )
     } else {
-      formInputs = (<GoogleLogin
-          clientId="472400227139-krcsj4li4oka1dspgdh3eckloi7ls1lc.apps.googleusercontent.com"
-          buttonText="Login with Google"
-          onSuccess={this.successGoogle}
-          onFailure={this.failGoogle}
-        />
+      formInputs = (<div id="login-button">
+          <GoogleLogin
+            clientId="472400227139-krcsj4li4oka1dspgdh3eckloi7ls1lc.apps.googleusercontent.com"
+            buttonText="Login with Google"
+            onSuccess={this.successGoogle}
+            onFailure={this.failGoogle}
+            />
+        </div>
       )
     }
 
