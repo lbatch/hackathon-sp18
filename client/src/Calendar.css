@@ -13,19 +13,24 @@
   width: 75px;
   background: -webkit-radial-gradient(center, ellipse cover, #ffb76b 0%,#ff7c00 100%,#ff7f04 100%);
   */
+
+  /* note: !important is needed to add styling to Material-UI components */
   width: 50px !important;
   min-width: 50px !important;
   height: 50px !important;
+  border-radius: 100% !important;
+  vertical-align: middle !important;
 }
-/*
-.day:hover {
-  background: -webkit-radial-gradient(center, ellipse cover, #fcecfc 0%,#fd89d7 100%,#fba6e1 100%,#ff7cd8 100%);
-}
-*/
+
 .boardRow {
   clear: both;
   display: table;
 }
 
 .calendar {
+  display: inline-block;
+}
+
+#calendarHeader {
+  margin-bottom: 1rem;
 }

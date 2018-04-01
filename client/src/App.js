@@ -106,12 +106,12 @@ class App extends Component {
     let formInputs = arrayOfKeys.map( key => {
       return (
         <MuiThemeProvider>
-        <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'block'}} zDepth={1}>
+        <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
         <div>
           <fieldset>
             <Subheader>Event Details</Subheader>
-            <p>Title: <TextField hintText="Name of the task" type="text" name={"name" + key}/></p>
-            <p>Duration: <TextField hintText="Hours needed to complete" type="number" name={"duration" + key}/></p>
+            <p>Title: <TextField hintText="name of the task" type="text" name={"name" + key}/></p>
+            <p>Duration: <TextField hintText="hours needed to complete" type="number" name={"duration" + key}/></p>
             <p>Deadline: <TextField type="date" name={"deadline" + key}/></p>
           </fieldset>
         </div>
@@ -125,16 +125,18 @@ class App extends Component {
       <div>
         <Banner />
         <form name="eventForm" onSubmit={this.submitFormHandler}>
+        <div>
           {formInputs}
+        </div>
           <RaisedButton type="submit" label="Submit" style={{marginLeft: '1rem'}} primary={true}/>
           <RaisedButton onClick={this.addEventHandler} label="Add Event" style={{marginLeft: '1rem'}}/>
           <RaisedButton onClick={this.removeEventHandler} label="Remove Event" style={{marginLeft: '1rem'}}/>
         </form>
-        <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'block'}} zDepth={1}>
+        <Paper style={{marginTop: '2rem', marginLeft: '1rem', marginRight: '1rem', marginBottom: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
           <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
           <div>
-            <RaisedButton className="changeDisplay" onClick={this.lastMonthHandler} label="Prev" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true}/>
-            <RaisedButton className="changeDisplay" onClick={this.nextMonthHandler} label="Next" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true}/>
+            <RaisedButton className="changeDisplay" onClick={this.lastMonthHandler} label="Prev" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} />
+            <RaisedButton className="changeDisplay" onClick={this.nextMonthHandler} label="Next" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} />
           </div>
         </Paper>
       </div>
@@ -142,6 +144,5 @@ class App extends Component {
     );
   }
 }
-
 
 export default App;

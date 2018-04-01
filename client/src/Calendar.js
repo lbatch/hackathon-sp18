@@ -3,6 +3,7 @@ import './Calendar.css'
 import Subheader from 'material-ui/Subheader';
 import Paper from 'material-ui/Paper';
 import FlatButton from 'material-ui/FlatButton';
+import AppBar from 'material-ui/AppBar';
 
 const calendar = (props) => {
   let dates = [];
@@ -46,7 +47,8 @@ const calendar = (props) => {
 
   return (
     <div className="calendar">
-        <Subheader>{monthNames[props.display.month]} {props.display.year}</Subheader>
+        <Subheader>Calendar</Subheader>
+        <AppBar id="calendarHeader" showMenuIconButton={false} title={monthNames[props.display.month] + ' ' + props.display.year}/>
         <div className="boardRow">
           <FlatButton className="day" onClick={buttonClicked} label={dates[0]}/>
           <FlatButton className="day" onClick={buttonClicked} label={dates[1]}/>
