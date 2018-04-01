@@ -155,12 +155,14 @@ class App extends Component {
         </div>
       )
     } else {
-      formInputs = (<GoogleLogin
-          clientId="472400227139-krcsj4li4oka1dspgdh3eckloi7ls1lc.apps.googleusercontent.com"
-          buttonText="Login with Google"
-          onSuccess={this.successGoogle}
-          onFailure={this.failGoogle}
-        />
+      formInputs = (<div id="login-button">
+          <GoogleLogin
+            clientId="472400227139-krcsj4li4oka1dspgdh3eckloi7ls1lc.apps.googleusercontent.com"
+            buttonText="Login with Google"
+            onSuccess={this.successGoogle}
+            onFailure={this.failGoogle}
+            />
+        </div>
       )
     }
 

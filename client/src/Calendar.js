@@ -49,58 +49,58 @@ const calendar = (props) => {
         <Subheader>Calendar</Subheader>
         <AppBar id="calendarHeader" showMenuIconButton={false} title={monthNames[props.display.month] + ' ' + props.display.year}/>
         <div className="boardRow">
-          <FlatButton className="day" onClick={buttonClicked} label={dates[0]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[1]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[2]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[3]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[4]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[5]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[6]}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[0] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[1] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[2] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[3] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[4] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[5] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[6] || ' '}/>
         </div>
         <div className="boardRow">
-          <FlatButton className="day" onClick={buttonClicked} label={dates[7]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[8]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[9]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[10]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[11]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[12]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[13]}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[7] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[8] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[9] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[10] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[11] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[12] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[13] || ' '}/>
         </div>
       <div className="boardRow">
-          <FlatButton className="day" onClick={buttonClicked} label={dates[14]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[15]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[16]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[17]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[18]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[19]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[20]}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[14] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[15] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[16] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[17] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[18] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[19] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[20] || ' '}/>
         </div>
         <div className="boardRow">
-          <FlatButton className="day" onClick={buttonClicked} label={dates[21]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[22]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[23]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[24]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[25]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[26]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[27]}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[21] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[22] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[23] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[24] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[25] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[26] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[27] || ' '}/>
         </div>
         <div className="boardRow">
-          <FlatButton className="day" onClick={buttonClicked} label={dates[28]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[29]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[30]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[31]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[32]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[33]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[34]}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[28] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[29] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[30] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[31] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[32] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[33] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[34] || ' '}/>
         </div>
         <div className="boardRow">
-          <FlatButton className="day" onClick={buttonClicked} label={dates[35]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[36]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[37]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[38]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[39]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[40]}/>
-          <FlatButton className="day" onClick={buttonClicked} label={dates[41]}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[35] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[36] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[37] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[38] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[39] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[40] || ' '}/>
+          <FlatButton className="day" onClick={buttonClicked} label={dates[41] || ' '}/>
         </div>
         <div id='eventDisplay'></div>
     </div>
