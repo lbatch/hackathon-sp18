@@ -4,6 +4,7 @@ const fs = require('fs');
 const mkdirp = require('mkdirp');
 const readline = require('readline');
 const google = require('googleapis');
+var bodyParser = require('body-parser');
 const OAuth2Client = google.auth.OAuth2;
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const TOKEN_PATH = 'credentials.json';
@@ -16,6 +17,8 @@ var taskArray = new Array();
 var frontEndToken;
 
 app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
 
 app.post('/auth', (req,res) => {
     frontEndToken = req.body.token;
@@ -47,6 +50,12 @@ function taskAssignment()
 
 app.get('/api/main', (req, res) => {
     console.log("Success");
+});
+
+app.post('/api/test', (req, res) => {
+    console.log(req.body);
+    console.log("Thats what we got here!");
+    res.send(JSON.stringify({message: "Heres our reply!"}));
 });
 
 /**
@@ -139,7 +148,7 @@ function insertEvents(auth, callback)
   {
     console.log(block.startDate.toISOString());
     console.log(block.endDate.toISOString());
-    
+
     var event = {
       'summary': block.task,
       'start': {
@@ -152,7 +161,7 @@ function insertEvents(auth, callback)
         'useDefault': true
       }
     }
-    
+
     calendar.events.insert({
       auth: auth,
       calendarId: 'primary',
@@ -185,10 +194,10 @@ app.get('*', (req, res) => {
 
 
 // ****** TOOLS ******* //
-Date.prototype.addMinutes = function(m) 
-{    
-   this.setTime(this.getTime() + (m*60*1000)); 
-   return this;   
+Date.prototype.addMinutes = function(m)
+{
+   this.setTime(this.getTime() + (m*60*1000));
+   return this;
 }
 
 /* Convert API-formatted date to JS-compatible format */
@@ -206,20 +215,20 @@ function date_JStoAPI(jsDate)
 }
 
 /* Block object for blocks of free time */
-function Block(start, end) 
+function Block(start, end)
 {
     this.startDate = new Date(start);
     this.endDate = new Date(end);
 }
 
-Block.prototype.duration = function() 
+Block.prototype.duration = function()
 {
-    var dur = this.endDate - this.startDate; 
+    var dur = this.endDate - this.startDate;
     return dur / 1000 / 60 / 60;
 }
 
 /* WorkBlock item for task-completion appointments to add to calendar */
-function WorkBlock(task, start, end) 
+function WorkBlock(task, start, end)
 {
     this.startDate = start;
     this.endDate = end;
@@ -227,7 +236,7 @@ function WorkBlock(task, start, end)
 }
 
 /* Task object for list of tasks */
-function Task(title, duration, deadline) 
+function Task(title, duration, deadline)
 {
     this.title = title;
     this.duration = duration;
@@ -239,7 +248,7 @@ function Task(title, duration, deadline)
 function detFreeTime(appointments)
 {
     var freeBlocks = new Array();
-    
+
     var curStartDate = new Date(); // Start at least 30 minutes from now, since we're in planning mode
     curStartDate.addMinutes(30);
     var curEndDate = new Date(appointments[0].startDate);
@@ -255,7 +264,7 @@ function detFreeTime(appointments)
             var curBlock = new Block(curStartDate, curEndDate);
             freeBlocks.push(curBlock);
         }
-        
+
         curStartDate = new Date(curAppt.endDate);
     }
     curEndDate = new Date(curStartDate);
@@ -268,15 +277,15 @@ function detFreeTime(appointments)
 function blockSelection(tasks, freeBlocks)
 {
     var workBlocks = new Array();
-    
+
     tasks.sort(function(a,b){
         return new Date(a.deadline) - new Date(b.deadline);
     });
-    
+
     freeBlocks.sort(function(a,b){
         return new Date(a.startDate) - new Date(b.startDate);
     });
-    
+
 
     for (let curTask of tasks)
     {
@@ -317,4 +326,3 @@ const port = process.env.PORT || 5000;
 app.listen(port);
 
 console.log(`Listening on ${port}`);
-

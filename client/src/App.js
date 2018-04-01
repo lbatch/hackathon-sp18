@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Banner from './Banner';
 import Calendar from './Calendar';
 import './App.css'
+import GoogleLogin from 'react-google-login';
 
 class App extends Component {
   constructor(props) {
@@ -13,7 +14,8 @@ class App extends Component {
         month: currentMonth,
         year: currentYear
       },
-      numOfEvents: 3
+      numOfEvents: 1,
+      signedIn: false
     };
   }
 
@@ -82,7 +84,20 @@ class App extends Component {
       events[i].duration = results["duration" + i].value;
       events[i].deadline = results["deadline" + i].value;
     }
-    console.log(events);
+
+    fetch("/api/test", {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: this.state.token,
+        tasks: events
+      })
+    }).then(res => res.json())
+      .then(res => console.log(res));
+
     this.setState({
       ...this.state,
       tasks: [ {
@@ -95,32 +110,60 @@ class App extends Component {
     event.preventDefault();
   }
 
+  successGoogle = (response) => {
+    this.setState({
+      ...this.state,
+      token: response.getAuthResponse().id_token,
+      signedIn: true
+    });
+  }
+
+  failGoogle = (response) => {
+    console.log(response);
+  }
+
   render() {
+    let formInputs
     let arrayOfKeys = new Array(this.state.numOfEvents);
-    for(let i = 0; i < this.state.numOfEvents; ++i) {
-      arrayOfKeys[i] = i;
-    }
-    let formInputs = arrayOfKeys.map( key => {
-      return (
+
+    if(this.state.signedIn) {
+      for(let i = 0; i < this.state.numOfEvents; ++i) {
+        arrayOfKeys[i] = i;
+      }
+      formInputs = arrayOfKeys.map( key => {
+        return (
+          <div>
+            <fieldset>
+              <legend>Event Details</legend>
+              <p>Title: <input type="text" name={"name" + key}/></p>
+              <p>Duration (Hours): <input type="number" name={"duration" + key}/></p>
+              <p>Deadline: <input type="date" name={"deadline" + key}/></p>
+            </fieldset>
+          </div>
+        )
+      });
+      formInputs[formInputs.length] = (
         <div>
-          <fieldset>
-            <legend>Event Details</legend>
-            <p>Title: <input type="text" name={"name" + key}/></p>
-            <p>Duration (Hours): <input type="number" name={"duration" + key}/></p>
-            <p>Deadline: <input type="date" name={"deadline" + key}/></p>
-          </fieldset>
+          <input type="submit"/>
+          <button onClick={this.addEventHandler}>Add Event</button>
+          <button onClick={this.removeEventHandler}>Remove Event</button>
         </div>
       )
-    });
+    } else {
+      formInputs = (<GoogleLogin
+          clientId="472400227139-krcsj4li4oka1dspgdh3eckloi7ls1lc.apps.googleusercontent.com"
+          buttonText="Login with Google"
+          onSuccess={this.successGoogle}
+          onFailure={this.failGoogle}
+        />
+      )
+    }
 
     return (
       <div>
         <Banner />
         <form name="eventForm" onSubmit={this.submitFormHandler}>
           {formInputs}
-          <input type="submit"/>
-          <button onClick={this.addEventHandler}>Add Event</button>
-          <button onClick={this.removeEventHandler}>Remove Event</button>
         </form>
         <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
         <div>
