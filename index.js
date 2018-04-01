@@ -5,9 +5,10 @@ const mkdirp = require('mkdirp');
 const readline = require('readline');
 const google = require('googleapis');
 var bodyParser = require('body-parser');
-const OAuth2Client = google.auth.OAuth2;
+const {OAuth2Client} = require('google-auth-library');
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const TOKEN_PATH = 'credentials.json';
+const client = new OAuth2Client('399189061122-q764s023rjs7cnjk8elh6k8shniok58q.apps.googleusercontent.com');	
 
 const app = express();
 
@@ -22,8 +23,19 @@ app.use(bodyParser.json())
 
 app.post('/auth', (req,res) => {
     frontEndToken = req.body.token;
+    console.log(frontEndToken);
     taskArray = req.body.tasks;
-    fs.readFile('client_secret.json', (err, content) => {
+    
+
+
+
+
+
+
+
+
+
+   fs.readFile('client_secret.json', (err, content) => {
     if (err) return console.log('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Drive API
     authorize(JSON.parse(content), getEvents, taskAssignment);
@@ -65,12 +77,13 @@ app.post('/api/test', (req, res) => {
   * @param {function} callback The callback to call with the authorized client.
 */
 function authorize(credentials, callback, callback2) {
-  const {client_secret, client_id, redirect_uris} = credentials.installed;
+  const {client_secret, client_id, redirect_uris} = credentials.web;
   const oAuth2Client = new OAuth2Client(client_id, client_secret, redirect_uris[0]);
-  oAuth2Client.setCredentials(JSON.parse(frontEndToken));
+  oAuth2Client.setCredentials(frontEndToken);
     // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
-    if (err) return getAccessToken(oAuth2Client, callback);
+
+    if (err) return oAuth2Client.setCredentials(JSON.parse(frontEndToken));
     oAuth2Client.setCredentials(JSON.parse(token));
     callback(oAuth2Client, callback2);
   });
