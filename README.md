@@ -7,7 +7,7 @@ Task management helper app for Google Calendar that gets a list of tasks from th
 Created using React, Express, JavaScript, and Material-UI styling, and deployed on Heroku.
 
 *Developed for the Oregon State University Hackathon Club's Spring 2018 Hackathon by:*
-* Zach Anderson @zanderson3j
-* Lydia Batchelor @lbatch
-* Jesse McKenna @jessemckenna
-* Marc Tibbs @tibbsm
+* Zach Anderson [@zanderson3j](https://github.com/zanderson3j)
+* Lydia Batchelor [@lbatch](https://github.com/lbatch)
+* Jesse McKenna [@jessemckenna](https://github.com/jessemckenna)
+* Marc Tibbs [@tibbsm](https://github.com/tibbsm)
