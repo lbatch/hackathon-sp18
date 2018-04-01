@@ -7,6 +7,7 @@ import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
+import GoogleLogin from 'react-google-login';
 
 class App extends Component {
   constructor(props) {
@@ -18,7 +19,8 @@ class App extends Component {
         month: currentMonth,
         year: currentYear
       },
-      numOfEvents: 3
+      numOfEvents: 1,
+      signedIn: false
     };
   }
 
@@ -85,7 +87,20 @@ class App extends Component {
       events[i].duration = results["duration" + i].value;
       events[i].deadline = results["deadline" + i].value;
     }
-    console.log(events);
+
+    fetch("/api/test", {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        token: this.state.token,
+        tasks: events
+      })
+    }).then(res => res.json())
+      .then(res => console.log(res));
+
     this.setState({
       ...this.state,
       tasks: [ {
@@ -98,37 +113,63 @@ class App extends Component {
     event.preventDefault();
   }
 
-  render() {
-    let arrayOfKeys = new Array(this.state.numOfEvents);
-    for(let i = 0; i < this.state.numOfEvents; ++i) {
-      arrayOfKeys[i] = i;
-    }
-    let formInputs = arrayOfKeys.map( key => {
-      return (
-        <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
-        <div>
-          <fieldset>
-            <Subheader>Event Details</Subheader>
-            <p>Title: <TextField hintText="name of the task" type="text" name={"name" + key}/></p>
-            <p>Duration: <TextField hintText="hours needed to complete" type="number" name={"duration" + key}/></p>
-            <p>Deadline: <TextField type="date" name={"deadline" + key}/></p>
-          </fieldset>
-        </div>
-        </Paper>
-      )
+  successGoogle = (response) => {
+    this.setState({
+      ...this.state,
+      token: response.getAuthResponse().id_token,
+      signedIn: true
     });
+  }
+
+  failGoogle = (response) => {
+    console.log(response);
+  }
+
+  render() {
+    let formInputs
+    let arrayOfKeys = new Array(this.state.numOfEvents);
+
+    if(this.state.signedIn) {
+      for(let i = 0; i < this.state.numOfEvents; ++i) {
+        arrayOfKeys[i] = i;
+      }
+      formInputs = arrayOfKeys.map( key => {
+        return (
+          <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
+          <div>
+            <fieldset>
+              <Subheader>Event Details</Subheader>
+              <p>Title: <TextField hintText="name of the task" type="text" name={"name" + key}/></p>
+              <p>Duration: <TextField hintText="hours needed to complete" type="number" name={"duration" + key}/></p>
+              <p>Deadline: <TextField type="date" name={"deadline" + key}/></p>
+            </fieldset>
+          </div>
+          </Paper>
+        )
+      });
+      formInputs[formInputs.length] = (
+        <div>
+          <RaisedButton type="submit" label="Submit" style={{marginLeft: '1rem'}} primary={true}/>
+          <RaisedButton onClick={this.addEventHandler} label="Add Event" style={{marginLeft: '1rem'}}/>
+          <RaisedButton onClick={this.removeEventHandler} label="Remove Event" style={{marginLeft: '1rem'}}/>
+        </div>
+      )
+    } else {
+      formInputs = (<GoogleLogin
+          clientId="472400227139-krcsj4li4oka1dspgdh3eckloi7ls1lc.apps.googleusercontent.com"
+          buttonText="Login with Google"
+          onSuccess={this.successGoogle}
+          onFailure={this.failGoogle}
+        />
+      )
+    }
 
     return (
       <MuiThemeProvider>
       <div>
         <Banner />
         <form name="eventForm" onSubmit={this.submitFormHandler}>
-        <div>
           {formInputs}
-        </div>
-          <RaisedButton type="submit" label="Submit" style={{marginLeft: '1rem'}} primary={true}/>
-          <RaisedButton onClick={this.addEventHandler} label="Add Event" style={{marginLeft: '1rem'}}/>
-          <RaisedButton onClick={this.removeEventHandler} label="Remove Event" style={{marginLeft: '1rem'}}/>
         </form>
         <Paper style={{marginTop: '2rem', marginLeft: '1rem', marginRight: '1rem', marginBottom: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
           <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
