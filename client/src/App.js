@@ -6,6 +6,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'; // for Mater
 import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
+import RaisedButton from 'material-ui/RaisedButton';
 
 class App extends Component {
   constructor(props) {
@@ -125,15 +126,17 @@ class App extends Component {
         <Banner />
         <form name="eventForm" onSubmit={this.submitFormHandler}>
           {formInputs}
-          <input type="submit"/>
-          <button onClick={this.addEventHandler}>Add Event</button>
-          <button onClick={this.removeEventHandler}>Remove Event</button>
+          <RaisedButton type="submit" label="Submit" style={{marginLeft: '1rem'}} primary={true}/>
+          <RaisedButton onClick={this.addEventHandler} label="Add Event" style={{marginLeft: '1rem'}}/>
+          <RaisedButton onClick={this.removeEventHandler} label="Remove Event" style={{marginLeft: '1rem'}}/>
         </form>
-        <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
-        <div>
-          <button className="changeDisplay" onClick={this.lastMonthHandler}>Prev</button>
-          <button className="changeDisplay" onClick={this.nextMonthHandler}>Next</button>
-        </div>
+        <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'block'}} zDepth={1}>
+          <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
+          <div>
+            <RaisedButton className="changeDisplay" onClick={this.lastMonthHandler} label="Prev" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true}/>
+            <RaisedButton className="changeDisplay" onClick={this.nextMonthHandler} label="Next" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true}/>
+          </div>
+        </Paper>
       </div>
       </MuiThemeProvider>
     );

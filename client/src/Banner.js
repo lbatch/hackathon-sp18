@@ -1,15 +1,13 @@
 import React from 'react';
 import './Banner.css';
 import AppBar from 'material-ui/AppBar';
-import IconButton from 'material-ui/IconButton';
 
 const banner = (props) => {
   return (
     <div className="App">
       <AppBar
         title="Optimus Time"
-        showMenuIconButton={false}
-      />
+        showMenuIconButton={false} />
       <header className="App-header">
         <p className="App-intro">
           ...Instructions Here...
