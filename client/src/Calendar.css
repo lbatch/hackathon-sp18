@@ -1,25 +1,20 @@
 .day {
-  /*
-  border: 1px solid #000;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 75px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 75px;
-  background: -webkit-radial-gradient(center, ellipse cover, #ffb76b 0%,#ff7c00 100%,#ff7f04 100%);
-  */
-
   /* note: !important is needed to add styling to Material-UI components */
   width: 50px !important;
   min-width: 50px !important;
   height: 50px !important;
   border-radius: 100% !important;
   vertical-align: middle !important;
+}
+
+.day-highlight {
+  /* note: !important is needed to add styling to Material-UI components */
+  color: #E91E63 !important;
+}
+
+.day-highlight:hover {
+  /* note: !important is needed to add styling to Material-UI components */
+  background-color: #FCE4EC !important;
 }
 
 .boardRow {
@@ -32,5 +27,7 @@
 }
 
 #calendarHeader {
-  margin-bottom: 1rem;
+  /* note: !important is needed to add styling to Material-UI components */
+  margin-bottom: 1rem !important;
+  background-color: #E91E63 !important;
 }

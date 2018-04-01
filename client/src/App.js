@@ -105,7 +105,6 @@ class App extends Component {
     }
     let formInputs = arrayOfKeys.map( key => {
       return (
-        <MuiThemeProvider>
         <Paper style={{margin: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
         <div>
           <fieldset>
@@ -116,7 +115,6 @@ class App extends Component {
           </fieldset>
         </div>
         </Paper>
-        </MuiThemeProvider>
       )
     });
 
@@ -135,8 +133,8 @@ class App extends Component {
         <Paper style={{marginTop: '2rem', marginLeft: '1rem', marginRight: '1rem', marginBottom: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
           <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
           <div>
-            <RaisedButton className="changeDisplay" onClick={this.lastMonthHandler} label="Prev" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} />
-            <RaisedButton className="changeDisplay" onClick={this.nextMonthHandler} label="Next" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} />
+            <RaisedButton className="changeDisplay" onClick={this.lastMonthHandler} label="Prev" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true} />
+            <RaisedButton className="changeDisplay" onClick={this.nextMonthHandler} label="Next" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true}/>
           </div>
         </Paper>
       </div>

@@ -9,9 +9,9 @@ const banner = (props) => {
         title="Optimus Time"
         showMenuIconButton={false} />
       <header className="App-header">
-        <p className="App-intro">
-          ...Instructions Here...
-        </p>
+	      <p className="App-intro">Optimus Time is a task management helper app for Google Calendar.</p>
+	      <p className="App-intro">Enter your upcoming tasks using the form below, then click Submit to have Optimus Time automatically assign your tasks time slots based on your availability.</p>
+	      <p className="App-intro">Review added tasks in the calendar at the bottom of the app.</p>
       </header>
     </div>
   )

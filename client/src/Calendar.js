@@ -1,7 +1,6 @@
 import React from 'react';
 import './Calendar.css'
 import Subheader from 'material-ui/Subheader';
-import Paper from 'material-ui/Paper';
 import FlatButton from 'material-ui/FlatButton';
 import AppBar from 'material-ui/AppBar';
 
