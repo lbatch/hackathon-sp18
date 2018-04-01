@@ -83,7 +83,7 @@ class App extends Component {
     let results = document.forms['eventForm'];
     for(let i = 0; i < this.state.numOfEvents; ++i) {
       events[i] = {};
-      events[i].name = results["name" + i].value;
+      events[i].title = results["name" + i].value;
       events[i].duration = results["duration" + i].value;
       events[i].deadline = results["deadline" + i].value;
     }
