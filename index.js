@@ -18,10 +18,8 @@ app.use(bodyParser.json())
 app.post('/api/main', (req,res) => {
     taskArray = req.body.tasks;
     eventArray = req.body.events;
-    generateWorkBlocks(taskArray, eventArray, (err, workArray) => {
-      if (err) return res.status(500).send("Error");
-      res.status(200).send(workArray);
-    });
+    generateWorkBlocks(taskArray, eventArray);
+    res.send(workArray);
   });
 
 app.post('/api/test', (req, res) => {
@@ -90,8 +88,11 @@ function detFreeTime(appointments)
 {
     var freeBlocks = new Array();
 
-    var curStartDate = new Date(); // Start at least 30 minutes from now, since we're in planning mode
-    curStartDate.addMinutes(30);
+    var curStartDate = new Date(); 
+    if(curStartDate.getMinutes() < 30)
+        curStartDate.addMinutes(30-curStartDate.getMinutes());
+    else
+        curStartDate.addMinutes(60-curStartDate.getMinutes());
     var curEndDate = new Date(appointments[0].startDate);
 
     for (let curAppt of appointments)
@@ -156,11 +157,6 @@ function generateWorkBlocks(tasks, appointments)
 {
     var freeBlocks = detFreeTime(appointments);
     workArray = blockSelection(tasks, freeBlocks);
-    fs.readFile('client_secret.json', (err, content) => {
-    if (err) return console.log('Error loading client secret file:', err);
-    // Authorize a client with credentials, then call the Google Drive API
-    authorize(JSON.parse(content), insertEvents, success);
-  });
 }
 
 const port = process.env.PORT || 5000;
