@@ -7,7 +7,7 @@ import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
-import GoogleLogin from 'react-google-login';
+import { GoogleLogin, GoogleLogout } from 'react-google-login';
 
 class App extends Component {
   constructor(props) {
@@ -86,6 +86,7 @@ class App extends Component {
       events[i].title = results["name" + i].value;
       events[i].duration = results["duration" + i].value;
       events[i].deadline = results["deadline" + i].value;
+      events[i].newEvent = true;
     }
 
     fetch("/api/test", {
@@ -107,7 +108,8 @@ class App extends Component {
                   {
                   	startDate: '2018-04-01T12:44:39.000Z',
                   	endDate: '2018-04-01T15:44:39.000Z',
-                  	task: 'do shit'
+                  	task: 'do shit',
+                    newEvent: true
                   }
                 ]
         });
@@ -136,7 +138,6 @@ class App extends Component {
         let prevEvents = [];
         for (var i = 0; i < data.items.length; i++) // for each event returned
         {
-          console.log(data.items[i]) // print the title to console
           prevEvents[i] = {};
           prevEvents[i].startDate = data.items[i].start.dateTime;
           prevEvents[i].endDate = data.items[i].end.dateTime;
@@ -154,11 +155,40 @@ class App extends Component {
     console.log(response);
   }
 
+  logout = () => {
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    this.setState({
+      displayMonth: {
+        month: currentMonth,
+        year: currentYear
+      },
+      numOfEvents: 1,
+      tasks: [],
+      signedIn: false
+    });
+  }
+
+  insertEventsHandler = () => {
+    let eventsToInsert = this.state.tasks.filter(event => event.newEvent);
+    console.log(eventsToInsert);
+  };
+
   render() {
-    let formInputs
+    let formInputs;
+    let submitSignOutButtons;
     let arrayOfKeys = new Array(this.state.numOfEvents);
 
     if(this.state.signedIn) {
+      submitSignOutButtons = (
+        <div>
+          <RaisedButton onClick={this.insertEventsHandler} label="Store Events in Google Calendar" style={{marginLeft: '1rem'}} primary={true} />
+          <GoogleLogout
+            buttonText="Logout"
+            onLogoutSuccess={this.logout}
+            />
+        </div>
+      );
       for(let i = 0; i < this.state.numOfEvents; ++i) {
         arrayOfKeys[i] = i;
       }
@@ -212,6 +242,7 @@ class App extends Component {
             <RaisedButton className="changeDisplay" onClick={this.nextMonthHandler} label="Next" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true}/>
           </div>
         </Paper>
+        {submitSignOutButtons}
       </div>
       </MuiThemeProvider>
     );
