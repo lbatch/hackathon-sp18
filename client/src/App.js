@@ -99,17 +99,22 @@ class App extends Component {
         tasks: events
       })
     }).then(res => res.json())
-      .then(res => console.log(res));
+      .then(res => {
+        console.log(res);
+        this.setState({
+          ...this.state,
+          tasks: [ ...this.state.tasks,
+                  {
+                  	startDate: '2018-04-01T12:44:39.000Z',
+                  	endDate: '2018-04-01T15:44:39.000Z',
+                  	task: 'do shit'
+                  }
+                ]
+        });
+        console.log(this.state);
+      });
 
-    this.setState({
-      ...this.state,
-      tasks: [ {
-              	startDate: '2018-04-01T12:44:39.000Z',
-              	endDate: '2018-04-01T15:44:39.000Z',
-              	task: 'do shit'
-              }
-            ]
-    });
+
     event.preventDefault();
   }
 
@@ -128,10 +133,20 @@ class App extends Component {
       }
     }).then(res => res.json())
       .then(data => {
+        let prevEvents = [];
         for (var i = 0; i < data.items.length; i++) // for each event returned
         {
-          console.log(data.items[i].summary) // print the title to console
+          console.log(data.items[i]) // print the title to console
+          prevEvents[i] = {};
+          prevEvents[i].startDate = data.items[i].start.dateTime;
+          prevEvents[i].endDate = data.items[i].end.dateTime;
+          prevEvents[i].task = data.items[i].summary;
+
         }
+        this.setState({
+          ...this.state,
+          tasks: prevEvents
+        });
       });
   }
 
