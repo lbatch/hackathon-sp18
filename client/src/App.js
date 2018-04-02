@@ -116,9 +116,23 @@ class App extends Component {
   successGoogle = (response) => {
     this.setState({
       ...this.state,
-      token: response.getAuthResponse().id_token,
+      token: response.getAuthResponse().access_token,
       signedIn: true
     });
+    var params = "maxResults=10"; // put any query parameters here in string format
+    fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?" + params, {
+      method: "GET",
+      headers: {
+        'Authorization': 'Bearer '+this.state.token,
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+      .then(data => {
+        for (var i = 0; i < data.items.length; i++) // for each event returned
+        {
+          console.log(data.items[i].summary) // print the title to console
+        }
+      });
   }
 
   failGoogle = (response) => {
@@ -163,6 +177,7 @@ class App extends Component {
             buttonText="Login with Google"
             onSuccess={this.successGoogle}
             onFailure={this.failGoogle}
+            scope="https://www.googleapis.com/auth/calendar"
             />
         </div>
       )
