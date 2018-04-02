@@ -126,7 +126,8 @@ class App extends Component {
       token: response.getAuthResponse().access_token,
       signedIn: true
     });
-    var params = "maxResults=500&timeMin="+(new Date()).toISOString()+"&singleEvents=true&orderBy=startTime"; // put any query parameters here in string format
+    //var params = "maxResults=500&timeMin="+(new Date()).toISOString()+"&singleEvents=true&orderBy=startTime"; // put any query parameters here in string format
+    var params = "maxResults=10"; // put any query parameters here in string format
     fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?" + params, {
       method: "GET",
       headers: {
@@ -136,6 +137,7 @@ class App extends Component {
     }).then(res => res.json())
       .then(data => {
         let prevEvents = [];
+        console.log(data);
         for (var i = 0; i < data.items.length; i++) // for each event returned
         {
           prevEvents[i] = {};
@@ -148,6 +150,7 @@ class App extends Component {
           ...this.state,
           tasks: prevEvents
         });
+        console.log(this.state);
       });
   }
 
