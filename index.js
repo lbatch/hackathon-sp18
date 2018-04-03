@@ -93,7 +93,7 @@ function detFreeTime(appointments)
     if(appointments.length)
     {
         var curEndDate = new Date(appointments[0].startDate);
-	for (let curAppt of appointments)
+	      for (let curAppt of appointments)
         {
             curEndDate = new Date(curAppt.startDate); // For the first block, the currentAppt start date is at least 30 minutes from now, start the first block of
                                         // free time 30 min from now and end it at the next appt

@@ -7,7 +7,7 @@ import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
 import Subheader from 'material-ui/Subheader';
 import RaisedButton from 'material-ui/RaisedButton';
-import GoogleLogin from 'react-google-login';
+import { GoogleLogin, GoogleLogout } from 'react-google-login';
 
 class App extends Component {
   constructor(props) {
@@ -86,6 +86,7 @@ class App extends Component {
       events[i].title = results["name" + i].value;
       events[i].duration = results["duration" + i].value;
       events[i].deadline = results["deadline" + i].value;
+      events[i].newEvent = true;
     }
 
     fetch("/auth", {
@@ -99,37 +100,98 @@ class App extends Component {
         tasks: events
       })
     }).then(res => res.json())
-      .then(res => console.log(res));
+      .then(res => {
+        console.log(res);
+        this.setState({
+          ...this.state,
+          tasks: [ ...this.state.tasks,
+                  {
+                  	startDate: '2018-04-01T12:44:39.000Z',
+                  	endDate: '2018-04-01T15:44:39.000Z',
+                  	task: 'do shit',
+                    newEvent: true
+                  }
+                ]
+        });
+        console.log(this.state);
+      });
 
-    this.setState({
-      ...this.state,
-      tasks: [ {
-              	startDate: '2018-04-01T12:44:39.000Z',
-              	endDate: '2018-04-01T15:44:39.000Z',
-              	task: 'do shit'
-              }
-            ]
-    });
+
     event.preventDefault();
   }
 
   successGoogle = (response) => {
     this.setState({
       ...this.state,
-      token: response.getAuthResponse().id_token,
+      token: response.getAuthResponse().access_token,
       signedIn: true
     });
+    //var params = "maxResults=500&timeMin="+(new Date()).toISOString()+"&singleEvents=true&orderBy=startTime"; // put any query parameters here in string format
+    var params = "maxResults=10"; // put any query parameters here in string format
+    fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?" + params, {
+      method: "GET",
+      headers: {
+        'Authorization': 'Bearer '+ this.state.token,
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json())
+      .then(data => {
+        let prevEvents = [];
+        console.log(data);
+        for (var i = 0; i < data.items.length; i++) // for each event returned
+        {
+          prevEvents[i] = {};
+          prevEvents[i].startDate = data.items[i].start.dateTime || data.items[i].start.date;
+          prevEvents[i].endDate = data.items[i].end.dateTime || data.items[i].end.date;;
+          prevEvents[i].task = data.items[i].summary;
+
+        }
+        this.setState({
+          ...this.state,
+          tasks: prevEvents
+        });
+        console.log(this.state);
+      });
   }
 
   failGoogle = (response) => {
     console.log(response);
   }
 
+  logout = () => {
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    this.setState({
+      displayMonth: {
+        month: currentMonth,
+        year: currentYear
+      },
+      numOfEvents: 1,
+      tasks: [],
+      signedIn: false
+    });
+  }
+
+  insertEventsHandler = () => {
+    let eventsToInsert = this.state.tasks.filter(event => event.newEvent);
+    console.log(eventsToInsert);
+  };
+
   render() {
-    let formInputs
+    let formInputs;
+    let submitSignOutButtons;
     let arrayOfKeys = new Array(this.state.numOfEvents);
 
     if(this.state.signedIn) {
+      submitSignOutButtons = (
+        <div>
+          <RaisedButton onClick={this.insertEventsHandler} label="Store Events in Google Calendar" style={{marginLeft: '1rem'}} primary={true} />
+          <GoogleLogout
+            buttonText="Logout"
+            onLogoutSuccess={this.logout}
+            />
+        </div>
+      );
       for(let i = 0; i < this.state.numOfEvents; ++i) {
         arrayOfKeys[i] = i;
       }
@@ -163,6 +225,7 @@ class App extends Component {
             buttonText="Login with Google"
             onSuccess={this.successGoogle}
             onFailure={this.failGoogle}
+            scope="https://www.googleapis.com/auth/calendar"
             />
         </div>
       )
@@ -182,6 +245,7 @@ class App extends Component {
             <RaisedButton className="changeDisplay" onClick={this.nextMonthHandler} label="Next" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true}/>
           </div>
         </Paper>
+        {submitSignOutButtons}
       </div>
       </MuiThemeProvider>
     );
