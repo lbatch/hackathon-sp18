@@ -179,7 +179,7 @@ class App extends Component {
       submitSignOutButtons = (
         <div>
           <RaisedButton onClick={this.insertEventsHandler} label="Store Events in Google Calendar" style={{marginLeft: '1rem'}} primary={true} />
-          <div>
+          <div id="logout-button">
             <GoogleLogout
               buttonText="Logout"
               onLogoutSuccess={this.logout}
