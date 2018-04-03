@@ -118,7 +118,7 @@ class App extends Component {
       token: response.getAuthResponse().access_token,
       signedIn: true
     });
-    
+
     var params = "maxResults=500"; // put any query parameters here in string format
     fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?" + params, {
       method: "GET",
