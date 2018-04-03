@@ -89,7 +89,7 @@ class App extends Component {
       events[i].newEvent = true;
     }
 
-    fetch("/api/test", {
+    fetch("/auth", {
       method: "POST",
       headers: {
         'Accept': 'application/json, text/plain, */*',
