@@ -49,11 +49,11 @@ const calendar = (props) => {
         let itemStartDate = new Date(item.startDate);
         let itemEndDate = new Date(item.endDate);
         if(itemStartDate.getMonth() === month && itemStartDate.getFullYear() === year && itemStartDate.getDate() === parseInt(event.target.textContent, 10)) {
-          let statement = '\n' + itemStartDate.toLocaleTimeString() + ' start ' + item.task;
+          let statement = '\n' + itemStartDate.toLocaleTimeString() + ' Start: ' + item.task;
           display += '<p>' + statement + '</p>';
         }
         if(itemEndDate.getMonth() === month && itemEndDate.getFullYear() === year && itemEndDate.getDate() === parseInt(event.target.textContent, 10)) {
-          let statement = '\n' + itemEndDate.toLocaleTimeString() + ' end ' + item.task;
+          let statement = '\n' + itemEndDate.toLocaleTimeString() + ' End: ' + item.task;
           display += '<p>' + statement + '</p>';
         }
 

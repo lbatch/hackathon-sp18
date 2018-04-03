@@ -89,14 +89,14 @@ class App extends Component {
       events[i].newEvent = true;
     }
 
-    fetch("/api/test", {
+    fetch("/api/main", {
       method: "POST",
       headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        token: this.state.token,
+        events: this.state.tasks,
         tasks: events
       })
     }).then(res => res.json())
@@ -105,18 +105,10 @@ class App extends Component {
         this.setState({
           ...this.state,
           tasks: [ ...this.state.tasks,
-                  {
-                  	startDate: '2018-04-01T12:44:39.000Z',
-                  	endDate: '2018-04-01T15:44:39.000Z',
-                  	task: 'do shit',
-                    newEvent: true
-                  }
+                  ...res
                 ]
         });
-        console.log(this.state);
       });
-
-
     event.preventDefault();
   }
 
@@ -126,8 +118,8 @@ class App extends Component {
       token: response.getAuthResponse().access_token,
       signedIn: true
     });
-    //var params = "maxResults=500&timeMin="+(new Date()).toISOString()+"&singleEvents=true&orderBy=startTime"; // put any query parameters here in string format
-    var params = "maxResults=10"; // put any query parameters here in string format
+    
+    var params = "maxResults=500"; // put any query parameters here in string format
     fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?" + params, {
       method: "GET",
       headers: {
@@ -137,7 +129,6 @@ class App extends Component {
     }).then(res => res.json())
       .then(data => {
         let prevEvents = [];
-        console.log(data);
         for (var i = 0; i < data.items.length; i++) // for each event returned
         {
           prevEvents[i] = {};
@@ -150,7 +141,6 @@ class App extends Component {
           ...this.state,
           tasks: prevEvents
         });
-        console.log(this.state);
       });
   }
 
@@ -170,6 +160,7 @@ class App extends Component {
       tasks: [],
       signedIn: false
     });
+    document.getElementById("eventDisplay").innerHTML = '';
   }
 
   insertEventsHandler = () => {
@@ -186,10 +177,12 @@ class App extends Component {
       submitSignOutButtons = (
         <div>
           <RaisedButton onClick={this.insertEventsHandler} label="Store Events in Google Calendar" style={{marginLeft: '1rem'}} primary={true} />
-          <GoogleLogout
-            buttonText="Logout"
-            onLogoutSuccess={this.logout}
-            />
+          <div>
+            <GoogleLogout
+              buttonText="Logout"
+              onLogoutSuccess={this.logout}
+              />
+          </div>
         </div>
       );
       for(let i = 0; i < this.state.numOfEvents; ++i) {
