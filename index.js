@@ -7,18 +7,15 @@ const google = require('googleapis');
 var bodyParser = require('body-parser');	
 
 const app = express();
-var eventArray = new Array();
-var workArray = new Array();
-var taskArray = new Array();
 
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 
 app.post('/api/main', (req,res) => {
-    taskArray = req.body.tasks;
-    eventArray = req.body.events;
-    generateWorkBlocks(taskArray, eventArray);
+    var taskArray = req.body.tasks;
+    var eventArray = req.body.events;
+    var workArray = generateWorkBlocks(taskArray, eventArray);
     res.send(workArray);
   });
 
@@ -93,24 +90,27 @@ function detFreeTime(appointments)
         curStartDate.addMinutes(30-curStartDate.getMinutes());
     else
         curStartDate.addMinutes(60-curStartDate.getMinutes());
-    var curEndDate = new Date(appointments[0].startDate);
-
-    for (let curAppt of appointments)
+    if(appointments.length)
     {
-        curEndDate = new Date(curAppt.startDate); // For the first block, the currentAppt start date is at least 30 minutes from now, start the first block of
-                                        // free time 30 min from now and end it at the next appt
-        var minEndDate = new Date(curStartDate);
-        minEndDate.addMinutes(30);
-        if(curEndDate >= minEndDate) // Don't use a block of time less than 30 minutes long; keep iterating until you find space
+        var curEndDate = new Date(appointments[0].startDate);
+	for (let curAppt of appointments)
         {
-            var curBlock = new Block(curStartDate, curEndDate);
-            freeBlocks.push(curBlock);
-        }
+            curEndDate = new Date(curAppt.startDate); // For the first block, the currentAppt start date is at least 30 minutes from now, start the first block of
+                                        // free time 30 min from now and end it at the next appt
+            var minEndDate = new Date(curStartDate);
+            minEndDate.addMinutes(30);
+            if(curEndDate >= minEndDate) // Don't use a block of time less than 30 minutes long; keep iterating until you find space
+            {
+                var curBlock = new Block(curStartDate, curEndDate);
+                freeBlocks.push(curBlock);
+            }
 
         curStartDate = new Date(curAppt.endDate);
+        }
     }
+    
     curEndDate = new Date(curStartDate);
-    curEndDate.addMinutes(360);
+    curEndDate.addMinutes(60000);
     curBlock = new Block(curStartDate, curEndDate);
     freeBlocks.push(curBlock);
     return freeBlocks;
@@ -156,7 +156,8 @@ function blockSelection(tasks, freeBlocks)
 function generateWorkBlocks(tasks, appointments)
 {
     var freeBlocks = detFreeTime(appointments);
-    workArray = blockSelection(tasks, freeBlocks);
+    var workArray = blockSelection(tasks, freeBlocks);
+    return workArray;
 }
 
 const port = process.env.PORT || 5000;
