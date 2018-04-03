@@ -129,13 +129,15 @@ class App extends Component {
     }).then(res => res.json())
       .then(data => {
         let prevEvents = [];
-        for (var i = 0; i < data.items.length; i++) // for each event returned
-        {
-          prevEvents[i] = {};
-          prevEvents[i].startDate = data.items[i].start.dateTime || data.items[i].start.date;
-          prevEvents[i].endDate = data.items[i].end.dateTime || data.items[i].end.date;;
-          prevEvents[i].task = data.items[i].summary;
+        if(data.items) {
+          for (var i = 0; i < data.items.length; i++) // for each event returned
+          {
+            prevEvents[i] = {};
+            prevEvents[i].startDate = data.items[i].start.dateTime || data.items[i].start.date;
+            prevEvents[i].endDate = data.items[i].end.dateTime || data.items[i].end.date;;
+            prevEvents[i].task = data.items[i].summary;
 
+          }
         }
         this.setState({
           ...this.state,
