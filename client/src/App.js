@@ -237,8 +237,20 @@ class App extends Component {
         <Paper style={{marginTop: '2rem', marginLeft: '1rem', marginRight: '1rem', marginBottom: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
           <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
           <div>
-            <RaisedButton className="changeDisplay" onClick={this.lastMonthHandler} label="Prev" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true} />
-            <RaisedButton className="changeDisplay" onClick={this.nextMonthHandler} label="Next" style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}} secondary={true}/>
+            <RaisedButton
+              className="changeDisplay"
+              onClick={this.lastMonthHandler}
+              label="Prev"
+              style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}}
+              backgroundColor = "#FBC02D"
+              labelColor = "white" />
+            <RaisedButton
+              className="changeDisplay"
+              onClick={this.nextMonthHandler}
+              label="Next"
+              style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}}
+              backgroundColor = "#FBC02D"
+              labelColor = "white" />
           </div>
         </Paper>
         {submitSignOutButtons}

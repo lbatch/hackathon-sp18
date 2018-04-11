@@ -9,12 +9,13 @@
 
 .day-highlight {
   /* note: !important is needed to add styling to Material-UI components */
-  color: #E91E63 !important;
+  color: #F57F17 !important;
+  background-color: #FFF9C4 !important;
 }
 
 .day-highlight:hover {
   /* note: !important is needed to add styling to Material-UI components */
-  background-color: #FCE4EC !important;
+  background-color: #FFF59D !important;
 }
 
 .boardRow {
@@ -29,5 +30,5 @@
 #calendarHeader {
   /* note: !important is needed to add styling to Material-UI components */
   margin-bottom: 1rem !important;
-  background-color: #E91E63 !important;
+  background-color: #FBC02D !important;
 }
