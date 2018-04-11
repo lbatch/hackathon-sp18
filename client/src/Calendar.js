@@ -25,11 +25,13 @@ const calendar = (props) => {
         let year = props.display.year;
         for(let j = 0; j < props.tasks.length; ++j) {
           let item = props.tasks[j];
-          let itemStartDate = new Date(item.startDate);
-          let itemEndDate = new Date(item.endDate);
-          if((itemStartDate.getMonth() === month && itemStartDate.getFullYear() === year && itemStartDate.getDate() === dayCount) ||
-              (itemEndDate.getMonth() === month && itemEndDate.getFullYear() === year && itemEndDate.getDate() === dayCount)) {
-            dayWithEvent[i] = ' day-highlight';
+          if (item.startDate) {            
+            let itemStartDate = new Date(item.startDate);
+            let itemEndDate = new Date(item.endDate);
+            if((itemStartDate.getMonth() === month && itemStartDate.getFullYear() === year && itemStartDate.getDate() === dayCount) ||
+                (itemEndDate.getMonth() === month && itemEndDate.getFullYear() === year && itemEndDate.getDate() === dayCount)) {
+              dayWithEvent[i] = ' day-highlight';
+            }            
           }
         }
 

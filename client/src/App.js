@@ -132,11 +132,12 @@ class App extends Component {
         if(data.items) {
           for (var i = 0; i < data.items.length; i++) // for each event returned
           {
-            prevEvents[i] = {};
-            prevEvents[i].startDate = data.items[i].start.dateTime || data.items[i].start.date;
-            prevEvents[i].endDate = data.items[i].end.dateTime || data.items[i].end.date;;
-            prevEvents[i].task = data.items[i].summary;
-
+            if (data.items[i].startDate) { // skip weird 'undefined' events
+              prevEvents[i] = {};
+              prevEvents[i].startDate = data.items[i].start.dateTime || data.items[i].start.date;
+              prevEvents[i].endDate = data.items[i].end.dateTime || data.items[i].end.date;;
+              prevEvents[i].task = data.items[i].summary;
+            }
           }
         }
         this.setState({
