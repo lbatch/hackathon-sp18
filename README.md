@@ -3,6 +3,7 @@
 Task management helper app for Google Calendar that gets a list of tasks from the user, then automatically assigns the tasks time slots on the user's Google Calendar based on the amount of available time and the tasks' deadlines.
 
 **Try it here:** https://optimus-time.herokuapp.com/
+**not currently fully functional due to error communicating between front end and server**
 
 Created using React, Express, JavaScript, and Material-UI styling, and deployed on Heroku.
 
