@@ -89,7 +89,6 @@ class App extends Component {
       events[i].title = results["name" + i].value;
       events[i].duration = results["duration" + i].value;
       events[i].deadline = results["deadline" + i].value;
-      events[i].newEvent = true;
     }
 
     fetch("/api/main", {
@@ -104,7 +103,13 @@ class App extends Component {
       })
     }).then(res => res.json())
       .then(res => {
-        //console.log(res);
+        for (var i = 0; i < res.length; i++)
+        {
+          res[i].newEvent = true; // distinguish from previously existing events
+        }
+
+        // Append newly allocated tasks to existing events, so this.state.tasks
+        // contains both user's preexisting events and allocated to-do items
         this.setState({
           ...this.state,
           tasks: [ ...this.state.tasks,
@@ -122,7 +127,13 @@ class App extends Component {
       signedIn: true
     });
 
-    var params = "maxResults=500"; // put any query parameters here in string format
+    // Put any query parameters here in string format
+    var firstOfMonth = new Date(this.state.displayMonth.year,
+                                this.state.displayMonth.month,
+                                1, 0, 0, 0); // 1st of current month, 0:00:00 AM
+    var params = "maxResults=500"
+                  + "&timeMin=" + firstOfMonth.toISOString();
+
     fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?" + params, {
       method: "GET",
       headers: {
@@ -133,13 +144,17 @@ class App extends Component {
       .then(data => {
         let prevEvents = [];
         if(data.items) {
+          var j = 0; // destination index
           for (var i = 0; i < data.items.length; i++) // for each event returned
           {
-            if (data.items[i].startDate) { // skip weird 'undefined' events
-              prevEvents[i] = {};
-              prevEvents[i].startDate = data.items[i].start.dateTime || data.items[i].start.date;
-              prevEvents[i].endDate = data.items[i].end.dateTime || data.items[i].end.date;;
-              prevEvents[i].task = data.items[i].summary;
+            if (data.items[i].start) { // skip mysterious 'undefined' events
+              prevEvents[j] = {};
+              prevEvents[j].startDate = data.items[i].start.dateTime || data.items[i].start.date;
+              prevEvents[j].endDate = data.items[i].end.dateTime || data.items[i].end.date;
+              prevEvents[j].task = data.items[i].summary;
+              prevEvents[j].newEvent = false; // distinguish from events to be created
+              j++; // iterate destination only if we added the event;
+                   // this is to prevent gaps when skipping undefined events
             }
           }
         }
