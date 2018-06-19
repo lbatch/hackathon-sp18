@@ -104,7 +104,7 @@ class App extends Component {
       })
     }).then(res => res.json())
       .then(res => {
-        console.log(res);
+        //console.log(res);
         this.setState({
           ...this.state,
           tasks: [ ...this.state.tasks,
@@ -246,14 +246,14 @@ class App extends Component {
               label="Prev"
               style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}}
               backgroundColor = "#FBC02D"
-              labelColor = "white" />
+              labelColor = "#FFFFFF" />
             <RaisedButton
               className="changeDisplay"
               onClick={this.nextMonthHandler}
               label="Next"
               style={{marginTop: '1rem', marginBottom: '1rem', marginRight: '1rem'}}
               backgroundColor = "#FBC02D"
-              labelColor = "white" />
+              labelColor = "#FFFFFF" />
           </div>
         </Paper>
         {submitSignOutButtons}

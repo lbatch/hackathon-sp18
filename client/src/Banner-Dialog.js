@@ -37,7 +37,7 @@ export default class DialogIcon extends React.Component {
       <div onClick={this.handleOpen}>
         <FontIcon
           className="material-icons"
-          style={{color: 'white'}}>
+          style={{color: "#FFFFFF"}}>
             ?
         </FontIcon>
         <Dialog
