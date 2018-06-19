@@ -1,3 +1,5 @@
+// Header bar at top of page and description text below it
+
 import React from 'react';
 import './Banner.css';
 import AppBar from 'material-ui/AppBar';

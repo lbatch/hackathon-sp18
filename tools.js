@@ -1,3 +1,5 @@
+// Functions for back-end task optimization
+
 Date.prototype.addMinutes = function(m) 
 {    
    this.setTime(this.getTime() + (m*60*1000)); 

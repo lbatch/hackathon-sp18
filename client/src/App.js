@@ -1,3 +1,6 @@
+// Main front-end page that brings together the various components (UI, calendar,
+// login/logout, etc.) and makes calls to Google API
+
 import React, { Component } from 'react';
 import Banner from './Banner';
 import Calendar from './Calendar';

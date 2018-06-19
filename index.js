@@ -1,3 +1,6 @@
+// Main back-end program that renders front-end and calls back-end
+// task-optimization functions
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');

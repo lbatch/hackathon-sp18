@@ -1,3 +1,5 @@
+// Calendar preview block and functions used to control how it displays
+
 import React from 'react';
 import './Calendar.css'
 import Subheader from 'material-ui/Subheader';
@@ -66,7 +68,7 @@ const calendar = (props) => {
 
   return (
     <div className="calendar">
-        <Subheader>Calendar</Subheader>
+        <Subheader>Calendar preview</Subheader>
         <AppBar id="calendarHeader" showMenuIconButton={false} title={monthNames[props.display.month] + ' ' + props.display.year}/>
         <div className="boardRow">
           <FlatButton className={"day" + dayWithEvent[0]} onClick={buttonClicked} label={dates[0] || ' '}/>

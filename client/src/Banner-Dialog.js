@@ -1,3 +1,5 @@
+// Pop-up description triggered by clicking the "?" icon on the header bar
+
 import React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
