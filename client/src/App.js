@@ -91,6 +91,8 @@ class App extends Component {
       events[i].deadline = results["deadline" + i].value;
     }
 
+    // Send tasks and existing events to back-end and receive allocated time
+    // slots for tasks
     fetch("/api/main", {
       method: "POST",
       headers: {
@@ -128,12 +130,13 @@ class App extends Component {
     });
 
     // Put any query parameters here in string format
-    var firstOfMonth = new Date(this.state.displayMonth.year,
-                                this.state.displayMonth.month,
-                                1, 0, 0, 0); // 1st of current month, 0:00:00 AM
+    var now = new Date();
     var params = "maxResults=500"
-                  + "&timeMin=" + firstOfMonth.toISOString();
+                  + "&singleEvents=true"
+                  + "&orderBy=startTime"
+                  + "&timeMin=" + now.toISOString();
 
+    // Get list of existing events from Google Calendar
     fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?" + params, {
       method: "GET",
       headers: {

@@ -22,11 +22,11 @@ app.post('/api/main', (req,res) => {
     res.send(workArray);
   });
 
-app.post('/api/test', (req, res) => {
+/*app.post('/api/test', (req, res) => {
     console.log(req.body);
     console.log("Thats what we got here!");
     res.send(JSON.stringify({message: "Heres our reply!"}));
-});
+});*/
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname+'/client/build/index.html'));
@@ -41,17 +41,17 @@ Date.prototype.addMinutes = function(m)
 
 /* Convert API-formatted date to JS-compatible format */
 /* This and the below ended up being simpler than expected so may not be necessary */
-function date_APItoJS(apiDate)
+/*function date_APItoJS(apiDate)
 {
     var date = new Date(apiDate);
     return date;
-}
+}*/
 
 /* Convert JS-formatted date to API-compatible format */
-function date_JStoAPI(jsDate)
+/*function date_JStoAPI(jsDate)
 {
     return jsDate.toISOString();
-}
+}*/
 
 /* Block object for blocks of free time */
 function Block(start, end)
@@ -88,27 +88,34 @@ function detFreeTime(appointments)
 {
     var freeBlocks = new Array();
 
-    var curStartDate = new Date(); 
+    var curStartDate = new Date(); // current date and time
+
+    // For the first block, the currentAppt start date is at least 30 minutes from now
     if(curStartDate.getMinutes() < 30)
         curStartDate.addMinutes(30-curStartDate.getMinutes());
     else
         curStartDate.addMinutes(60-curStartDate.getMinutes());
+
     if(appointments.length)
     {
+        // End the first block of free time at the next appt
         var curEndDate = new Date(appointments[0].startDate);
-	      for (let curAppt of appointments)
+        for (let curAppt of appointments)
         {
-            curEndDate = new Date(curAppt.startDate); // For the first block, the currentAppt start date is at least 30 minutes from now, start the first block of
-                                        // free time 30 min from now and end it at the next appt
+            curEndDate = new Date(curAppt.startDate);
+                                        
             var minEndDate = new Date(curStartDate);
             minEndDate.addMinutes(30);
-            if(curEndDate >= minEndDate) // Don't use a block of time less than 30 minutes long; keep iterating until you find space
+            
+            // Don't use a block of time less than 30 minutes long; keep
+            // iterating until you find space
+            if(curEndDate >= minEndDate)
             {
                 var curBlock = new Block(curStartDate, curEndDate);
                 freeBlocks.push(curBlock);
             }
 
-        curStartDate = new Date(curAppt.endDate);
+            curStartDate = new Date(curAppt.endDate);
         }
     }
     
@@ -116,6 +123,7 @@ function detFreeTime(appointments)
     curEndDate.addMinutes(60000);
     curBlock = new Block(curStartDate, curEndDate);
     freeBlocks.push(curBlock);
+
     return freeBlocks;
 }
 
