@@ -29,6 +29,11 @@
   background-color: #FFF59D !important;
 }
 
+.day-past {
+  /* note: !important is needed to add styling to Material-UI components */
+  color: #BBBBBB !important;
+}
+
 .boardRow {
   clear: both;
   display: table;

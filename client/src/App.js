@@ -14,10 +14,12 @@ import { GoogleLogin, GoogleLogout } from 'react-google-login';
 
 class App extends Component {
   constructor(props) {
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
+    let today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
     super(props);
     this.state = {
+      today: today,
       displayMonth: {
         month: currentMonth,
         year: currentYear
@@ -118,10 +120,16 @@ class App extends Component {
                   ...res
                 ]
         });
+        
+        this.state.tasks.sort(function(a,b) {
+          return new Date(a.startDate) - new Date(b.startDate);
+          }); // sort all tasks (new and old) by start date for neater display
       });
+      
     event.preventDefault();
   }
 
+  // Authentication successful, continue to retrieval of calendar events
   successGoogle = (response) => {
     this.setState({
       ...this.state,
@@ -129,12 +137,11 @@ class App extends Component {
       signedIn: true
     });
 
-    // Put any query parameters here in string format
     var now = new Date();
     var params = "maxResults=500"
                   + "&singleEvents=true"
                   + "&orderBy=startTime"
-                  + "&timeMin=" + now.toISOString();
+                  + "&timeMin=" + now.toISOString(); // query parameters
 
     // Get list of existing events from Google Calendar
     fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events?" + params, {
@@ -256,7 +263,7 @@ class App extends Component {
           {formInputs}
         </form>
         <Paper style={{marginTop: '2rem', marginLeft: '1rem', marginRight: '1rem', marginBottom: '1rem', paddingLeft: '1rem', paddingRight: '1rem', display: 'inline-block'}} zDepth={1}>
-          <Calendar display={this.state.displayMonth} tasks={this.state.tasks}/>
+          <Calendar display={this.state.displayMonth} tasks={this.state.tasks} today={this.state.today}/>
           <div>
             <RaisedButton
               className="changeDisplay"
