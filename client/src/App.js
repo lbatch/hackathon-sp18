@@ -194,10 +194,35 @@ class App extends Component {
     document.getElementById("eventDisplay").innerHTML = '';
   }
 
-  insertEventsHandler = () => {
-    let eventsToInsert = this.state.tasks.filter(event => event.newEvent);
-    console.log(eventsToInsert);
-  };
+  // Add newly allocated events to Google Calendar
+  insertEventsHandler = (event) => {
+    let eventsToInsert = this.state.tasks.filter(e => e.newEvent);
+    for (var i = 0; i < eventsToInsert.length; i++) // add events one at a time
+    {
+      var insertEvent = {
+        'end': {
+          'dateTime': eventsToInsert[i].endDate,
+          'timeZone': 'Etc/UTC'
+        },
+        'start': {
+          'dateTime': eventsToInsert[i].startDate,
+          'timeZone': 'Etc/UTC'
+        },
+        'summary': eventsToInsert[i].task
+      }
+
+      fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+        method: "POST",
+        headers: {
+          'Authorization': 'Bearer '+ this.state.token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(insertEvent)
+      });
+        
+      event.preventDefault();
+    }
+  }
 
   render() {
     let formInputs;
