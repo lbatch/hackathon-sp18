@@ -25,7 +25,8 @@ class App extends Component {
         year: currentYear
       },
       numOfEvents: 1,
-      signedIn: false
+      signedIn: false,
+      eventsPushed: false
     };
   }
 
@@ -197,6 +198,7 @@ class App extends Component {
   // Add newly allocated events to Google Calendar
   insertEventsHandler = (event) => {
     let eventsToInsert = this.state.tasks.filter(e => e.newEvent);
+    var remaining = eventsToInsert.length;
     for (var i = 0; i < eventsToInsert.length; i++) // add events one at a time
     {
       var insertEvent = {
@@ -218,7 +220,15 @@ class App extends Component {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(insertEvent)
-      });
+      }).then(remaining--);
+
+      if (remaining === 0)
+      {
+        this.setState({
+          ...this.state,
+          eventsPushed: true
+        });
+      }
         
       event.preventDefault();
     }
@@ -230,17 +240,35 @@ class App extends Component {
     let arrayOfKeys = new Array(this.state.numOfEvents);
 
     if(this.state.signedIn) {
-      submitSignOutButtons = (
-        <div>
-          <RaisedButton onClick={this.insertEventsHandler} label="Store Events in Google Calendar" style={{marginLeft: '1rem'}} primary={true} />
-          <div id="logout-button">
-            <GoogleLogout
-              buttonText="Logout"
-              onLogoutSuccess={this.logout}
-              />
+      if (this.state.eventsPushed)
+      {
+        submitSignOutButtons = (
+          <div>
+            <RaisedButton label="Stored Successfully" style={{marginLeft: '1rem'}} backgroundColor = "#CCCCCC" labelColor = "#FFFFFF"/>
+            <div id="logout-button">
+              <GoogleLogout
+                buttonText="Logout"
+                onLogoutSuccess={this.logout}
+                />
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
+      else
+      {
+        submitSignOutButtons = (
+          <div>
+            <RaisedButton onClick={this.insertEventsHandler} label="Store Events in Google Calendar" style={{marginLeft: '1rem'}} primary={true} />
+            <div id="logout-button">
+              <GoogleLogout
+                buttonText="Logout"
+                onLogoutSuccess={this.logout}
+                />
+            </div>
+          </div>
+        );
+      }
+
       for(let i = 0; i < this.state.numOfEvents; ++i) {
         arrayOfKeys[i] = i;
       }
