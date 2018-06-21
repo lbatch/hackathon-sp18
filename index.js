@@ -75,12 +75,64 @@ function WorkBlock(task, start, end)
 }
 
 /* Task object for list of tasks */
-function Task(title, duration, deadline)
+/*function Task(title, duration, deadline)
 {
     this.title = title;
     this.duration = duration;
     this.deadline = new Date(deadline);
     this.remDuration = duration;
+}*/
+
+/* Add non-working ('rest') blocks to list of appointments, preventing tasks
+   from being scheduled during these hours in subsequent steps */
+function restrictWorkHours(appointments, tasks)
+{
+    const WORK_START = 9; // 9 AM
+    const WORK_END = 17; // 5 PM
+    const DEADLINE_BUFFER = 30; // to add to max deadline in case of overflow
+
+    var restDuration = 24 - (WORK_END - WORK_START);
+    if (restDuration > 24)
+        restDuration -= 24;
+
+    // Determine how many rest periods to block out
+    var maxDeadline = new Date(tasks[0].deadline);
+    maxDeadline.setHours(11, 59, 59);
+    for (var i = 0; i < tasks.length; i++)
+    {
+        var curDeadline = new Date(tasks[i].deadline);
+        curDeadline.setHours(11, 59, 59);
+        if (curDeadline > maxDeadline)
+            maxDeadline = curDeadline;
+    }
+
+    // Add buffer to ensure rests are included even if we overshoot deadlines
+    maxDeadline.setDate(maxDeadline.getDate() + DEADLINE_BUFFER);
+
+    // Generate rest blocks and add them to appointment array
+    var restStart = new Date(appointments[0].startDate);
+    restStart.setDate(restStart.getDate() - 1); // starting yesterday
+    restStart.setHours(WORK_END, 0, 0);
+    while (restStart < maxDeadline) // add block each day until last deadline
+    {
+        var restEnd = new Date(restStart);
+        restEnd.setHours(restStart.getHours() + restDuration);
+
+        var restBlock = {
+            startDate: new Date(restStart),
+            endDate: new Date(restEnd),
+            task: "rest",
+            newEvent: false
+        };
+        appointments.push(restBlock); // treat rest time as an appointment
+
+        restStart.setDate(restStart.getDate() + 1); // repeat for next day
+    }
+
+    // Sort appointment array to incorporate newly added rest blocks
+    appointments.sort(function(a,b){
+        return new Date(a.startDate) - new Date(b.startDate);
+    });
 }
 
 /* Function to take list of appointments from calendar and determine blocks of free time */
@@ -88,40 +140,46 @@ function detFreeTime(appointments)
 {
     var freeBlocks = new Array();
 
-    var curStartDate = new Date(); // current date and time
+    var freeStart = new Date(); // current date and time
 
     // For the first block, the currentAppt start date is at least 30 minutes from now
-    if(curStartDate.getMinutes() < 30)
-        curStartDate.addMinutes(30-curStartDate.getMinutes());
+    if(freeStart.getMinutes() < 30)
+        freeStart.addMinutes(30-freeStart.getMinutes());
     else
-        curStartDate.addMinutes(60-curStartDate.getMinutes());
+        freeStart.addMinutes(60-freeStart.getMinutes());
 
     if(appointments.length)
     {
         // End the first block of free time at the next appt
-        var curEndDate = new Date(appointments[0].startDate);
+        var freeEnd = new Date(appointments[0].startDate);
         for (let curAppt of appointments)
         {
-            curEndDate = new Date(curAppt.startDate);
-                                        
-            var minEndDate = new Date(curStartDate);
-            minEndDate.addMinutes(30);
-            
-            // Don't use a block of time less than 30 minutes long; keep
-            // iterating until you find space
-            if(curEndDate >= minEndDate)
+            // Only consider appt if it ends after the previous appt ends
+            var nextStart = new Date(curAppt.endDate);
+            if (nextStart > freeStart)
             {
-                var curBlock = new Block(curStartDate, curEndDate);
-                freeBlocks.push(curBlock);
-            }
+                // Try block from end of previous to start of current appointment
+                freeEnd = new Date(curAppt.startDate);
+                                            
+                var minEndDate = new Date(freeStart);
+                minEndDate.addMinutes(30);
+                
+                // Don't use a block of time less than 30 minutes long; keep
+                // iterating until you find space
+                if(freeEnd >= minEndDate)
+                {
+                    var curBlock = new Block(freeStart, freeEnd);
+                    freeBlocks.push(curBlock);
+                }
 
-            curStartDate = new Date(curAppt.endDate);
+                freeStart = new Date(nextStart);
+            }
         }
     }
     
-    curEndDate = new Date(curStartDate);
-    curEndDate.addMinutes(60000);
-    curBlock = new Block(curStartDate, curEndDate);
+    freeEnd = new Date(freeStart);
+    freeEnd.addMinutes(60000);
+    curBlock = new Block(freeStart, freeEnd);
     freeBlocks.push(curBlock);
 
     return freeBlocks;
@@ -138,7 +196,6 @@ function blockSelection(tasks, freeBlocks)
     freeBlocks.sort(function(a,b){
         return new Date(a.startDate) - new Date(b.startDate);
     });
-
 
     for (let curTask of tasks)
     {
@@ -164,8 +221,9 @@ function blockSelection(tasks, freeBlocks)
     return workBlocks;
 }
 
-function generateWorkBlocks(tasks, appointments)
+function generateWorkBlocks(tasks, appointments) // all times are in the calendar's local time
 {
+    restrictWorkHours(appointments, tasks);
     var freeBlocks = detFreeTime(appointments);
     var workArray = blockSelection(tasks, freeBlocks);
     return workArray;

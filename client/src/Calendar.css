@@ -10,7 +10,7 @@
 .day-highlight {
   /* note: !important is needed to add styling to Material-UI components */
   color: #555555 !important;
-  background-color: #F5F5F5 !important;
+  background-color: #F0F0F0 !important;
 }
 
 .day-highlight:hover {

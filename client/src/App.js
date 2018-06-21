@@ -138,7 +138,7 @@ class App extends Component {
     });
 
     var now = new Date();
-    var params = "maxResults=500"
+    var params = "maxResults=250"
                   + "&singleEvents=true"
                   + "&orderBy=startTime"
                   + "&timeMin=" + now.toISOString(); // query parameters
